@@ -1,0 +1,795 @@
+Sylo-core PRD – Conversational Project Ops Engine
+
+1. Overview
+
+Sylo-core is the orchestration engine behind Sylo — a conversational project management assistant for design studios (interior design, architecture, branding, and creative agencies). It allows users to manage clients, projects, tasks, schedules, and more using natural language chat. Sylo-core understands design-specific workflows, interprets user intent, and routes requests to internal APIs and external tools like Google Calendar, Xero, and social media platforms — returning smart, contextual responses.
+
+**Design Studio Focus**: Unlike generic project management tools, Sylo understands the creative process from initial client briefing through to final delivery and post-project marketing.
+
+2. Goals
+
+Enable full control of a design project pipeline through chat
+
+Allow natural language to create, update, and manage clients, projects, tasks, and schedules
+
+Integrate with calendar and email systems to automate time management
+
+Prioritise tasks based on constraints, deadlines, and user intent
+
+Centralise project ops logic in a scalable and testable AI-led system
+
+3. Primary Users
+
+Designers: manage projects, track tasks, control schedules
+
+Admins: assign resources, set project-level access
+
+Clients (read-only portal): view project updates
+
+AI agents: trigger automated flows, suggest optimisations
+
+3.1 Design Project Phases (Industry Standard)
+
+**Architecture/Interior Design (RIBA Plan of Work 2020)**:
+
+- Stage 0: Strategic Definition (business case, project brief)
+- Stage 1: Preparation and Briefing (initial requirements, site analysis)
+- Stage 2: Concept Design (initial design concepts, spatial arrangements)
+- Stage 3: Spatial Coordination (detailed design development)
+- Stage 4: Technical Design (construction details, specifications)
+- Stage 5: Manufacturing and Construction (procurement, construction administration)
+- Stage 6: Handover (completion, snagging, handover)
+- Stage 7: Use (post-occupancy, maintenance)
+
+**Branding/Creative Projects**:
+
+- Stage 1: Business Goals & Brand Personality (client briefing, brand strategy)
+- Stage 2: Market & User Research (competitor analysis, target audience)
+- Stage 3: Creative Development (concept design, initial directions)
+- Stage 4: Visual Identity Creation (logo, typography, color palette)
+- Stage 5: Brand Application (business cards, marketing materials, digital assets)
+- Stage 6: Style Guide & Implementation (brand guidelines, asset delivery)
+
+4. Core Modules
+
+4.1 Intent Parser
+
+Converts freeform input into structured actions (create project, block calendar, cancel meeting)
+
+Outputs: { intent: string, entities: {...}, confidence: 0.xx }
+
+4.2 Orchestrator
+
+Central logic router: validates input, resolves dependencies, and triggers service actions
+
+Capable of chaining dependent tasks (e.g. create client → project → tasks)
+
+4.3 Service Adapters
+
+Internal: Clients, Projects, Tasks, Files (NeonDB via Prisma or Postgres client)
+
+External: Google Calendar, Gmail, OpenAI, TTS (via ElevenLabs), Video Generation
+
+Video Generation: Multi-provider approach for social media content
+
+- Primary: Wan2.1-I2V-14B-720P (self-hosted, optimized for interior design)
+- Fallback: Runway ML Gen-3 API (premium quality for high-budget projects)
+- Budget: Wan2.1-I2V-14B-480P (faster generation, lower resolution)
+
+Each adapter has predictable interfaces, return values, and logging
+
+4.4 State Manager
+
+Maintains context across chat: open projects, time windows, availability
+
+Preloads upcoming deadlines and blocks
+
+4.5 Output Generator
+
+Formats chat replies based on action results and user state
+
+Supports text, markdown, TTS-ready output
+
+4.6 Project Management Engine
+
+**Task Management**:
+
+- Hierarchical task structure with subtasks and dependencies
+- Task templates for common design workflows (concept development, client reviews, deliverable preparation)
+- Recurring task patterns (weekly check-ins, monthly invoicing, quarterly reviews)
+- Time tracking with automatic time logging from chat interactions
+- Effort estimation and progress tracking with visual completion indicators
+
+**Project Views & Visualization**:
+
+- Kanban boards with customizable columns (To Do, In Progress, Client Review, Complete)
+- Gantt charts showing project timelines, dependencies, and critical path
+- Calendar view integrating tasks, deadlines, and team availability
+- Timeline view for project milestones and phase transitions
+- Dashboard view with project health metrics and team workload
+
+**Team Collaboration**:
+
+- @mentions in chat and task comments for team notifications
+- Task discussion threads with file attachments and design feedback
+- Proofing workflows with markup tools for design reviews
+- Real-time collaboration with live cursor tracking and simultaneous editing
+- Client collaboration portal with controlled access to specific project elements
+
+4.7 Advanced Project Planning
+
+**Resource Management**:
+
+- Team capacity planning with skill-based task assignment
+- Workload balancing across multiple projects
+- Resource allocation tracking (hours, budget, materials)
+- Automated workload alerts and rebalancing suggestions
+- Freelancer and contractor management with role-based access
+
+**Project Templates & Workflows**:
+
+- Pre-built project templates for different design disciplines
+- Customizable workflow automation (stage transitions, approval processes)
+- Milestone tracking with automatic progress updates
+- Cross-project dependencies and portfolio management
+- Budget tracking with real-time spend monitoring
+
+**Analytics & Reporting**:
+
+- Project performance metrics (on-time delivery, budget variance, client satisfaction)
+- Team productivity analytics with time allocation insights
+- Client reporting dashboards with project status and deliverable tracking
+- Financial reporting integration with invoicing and profitability analysis
+- Predictive analytics for project risk assessment
+
+4.8 Supplier Directory & Product Intelligence
+
+**Product Cataloging**:
+
+- URL-based product import with AI content extraction
+- Automatic categorization (lighting, furniture, fabrics, finishes, hardware, accessories)
+- AI-powered tag generation (colors, materials, styles, dimensions, price range)
+- Image analysis for visual characteristics and style matching
+- Supplier information extraction and validation
+
+**Smart Organization**:
+
+- Pinterest-style visual browsing with grid and mood board views
+- Advanced filtering by category, style, color palette, material, price range
+- AI-powered product recommendations based on project requirements
+- Duplicate detection and consolidation across suppliers
+- Availability tracking and lead time monitoring
+
+**Design Integration**:
+
+- Product specification sheets with technical details and installation requirements
+- Direct integration with project mood boards and specification documents
+- Cost estimation and budget tracking for product selections
+- Supplier contact management with ordering history and performance metrics
+- Product comparison tools with side-by-side specifications
+
+4.9 AI Content Extraction Engine
+
+**Web Scraping Intelligence**:
+
+- Product page analysis for specifications, pricing, and availability
+- Image processing for color extraction and style classification
+- Material identification from product descriptions and images
+- Dimensional data extraction and standardization
+- Brand and supplier information validation
+
+**Auto-Tagging System**:
+
+- Color palette extraction using computer vision
+- Style classification (modern, traditional, industrial, scandinavian, etc.)
+- Material identification (wood, metal, glass, fabric, stone, etc.)
+- Functional categorization (seating, storage, lighting, decorative, etc.)
+- Price range classification and market positioning analysis
+
+8. Technical Stack
+
+Hosting & Infra
+
+Vercel: App hosting with edge functions and serverless API routes
+
+NeonDB: Serverless Postgres with branching, pooling, and scalable dev/preview environments
+
+Backend
+
+Next.js App Router (TypeScript)
+
+API routes: /api/clients, /api/projects, /api/tasks, /api/sylo-core
+
+Database Layer: NeonDB via Prisma or @neondatabase/serverless
+
+Auth: Supabase Auth or Clerk
+
+External Services: Google API (Calendar, Gmail), OpenAI (function calling), ElevenLabs (TTS)
+
+Frontend
+
+Next.js + TailwindCSS + Shadcn UI
+
+Chat interface with command history and priority badges
+
+Client/project/task views with minimal friction, AI-driven prompts
+
+8.1 Core Database Schema
+
+```sql
+-- Core Entities
+CREATE TABLE firms (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  subscription_tier VARCHAR(50) DEFAULT 'pro',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE clients (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  firm_id UUID REFERENCES firms(id) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255),
+  company VARCHAR(255),
+  xero_contact_id VARCHAR(255),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE projects (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  firm_id UUID REFERENCES firms(id) NOT NULL,
+  client_id UUID REFERENCES clients(id) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  type VARCHAR(100) NOT NULL, -- 'interior', 'architecture', 'branding', 'web'
+  current_stage VARCHAR(50) DEFAULT 'stage_0',
+  budget DECIMAL(12,2),
+  timeline_start DATE,
+  timeline_end DATE,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Enhanced Task Management
+CREATE TABLE tasks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) NOT NULL,
+  parent_task_id UUID REFERENCES tasks(id), -- for subtasks
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  stage VARCHAR(50),
+  status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'in_progress', 'client_review', 'complete', 'blocked'
+  priority VARCHAR(20) DEFAULT 'medium', -- 'low', 'medium', 'high', 'urgent'
+  due_date DATE,
+  start_date DATE,
+  estimated_hours DECIMAL(5,2),
+  actual_hours DECIMAL(5,2) DEFAULT 0,
+  progress_percentage INTEGER DEFAULT 0,
+  assignee_id UUID REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Task Dependencies
+CREATE TABLE task_dependencies (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  predecessor_task_id UUID REFERENCES tasks(id) NOT NULL,
+  successor_task_id UUID REFERENCES tasks(id) NOT NULL,
+  dependency_type VARCHAR(50) DEFAULT 'finish_to_start', -- 'finish_to_start', 'start_to_start', etc.
+  lag_days INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Task Comments & Collaboration
+CREATE TABLE task_comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  task_id UUID REFERENCES tasks(id) NOT NULL,
+  user_id UUID REFERENCES users(id) NOT NULL,
+  content TEXT NOT NULL,
+  mentions JSONB, -- array of mentioned user IDs
+  attachments JSONB, -- array of file references
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Project Milestones
+CREATE TABLE project_milestones (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  due_date DATE NOT NULL,
+  status VARCHAR(50) DEFAULT 'pending',
+  milestone_type VARCHAR(50), -- 'stage_completion', 'client_review', 'delivery', 'payment'
+  dependencies JSONB, -- array of task IDs that must complete
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Team Workload Tracking
+CREATE TABLE time_entries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) NOT NULL,
+  task_id UUID REFERENCES tasks(id),
+  project_id UUID REFERENCES projects(id) NOT NULL,
+  hours DECIMAL(5,2) NOT NULL,
+  entry_date DATE NOT NULL,
+  description TEXT,
+  billable BOOLEAN DEFAULT true,
+  entry_method VARCHAR(50) DEFAULT 'manual', -- 'manual', 'chat_auto', 'timer'
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Project Templates
+CREATE TABLE project_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  firm_id UUID REFERENCES firms(id) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  project_type VARCHAR(100) NOT NULL,
+  template_data JSONB NOT NULL, -- tasks, milestones, workflows
+  is_public BOOLEAN DEFAULT false,
+  created_by UUID REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Enhanced User Roles & Permissions
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  firm_id UUID REFERENCES firms(id) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  role VARCHAR(50) NOT NULL, -- 'admin', 'designer', 'project_manager', 'client', 'freelancer'
+  hourly_rate DECIMAL(8,2),
+  skills JSONB, -- array of skills/specializations
+  capacity_hours_per_week INTEGER DEFAULT 40,
+  avatar_url TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Project Access Control
+CREATE TABLE project_permissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) NOT NULL,
+  user_id UUID REFERENCES users(id) NOT NULL,
+  permission_level VARCHAR(50) NOT NULL, -- 'view', 'edit', 'admin'
+  can_view_budget BOOLEAN DEFAULT false,
+  can_assign_tasks BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Supplier Directory & Products
+CREATE TABLE suppliers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  website VARCHAR(255),
+  contact_email VARCHAR(255),
+  contact_phone VARCHAR(50),
+  address TEXT,
+  trade_account_info JSONB, -- account numbers, discount rates, terms
+  lead_times JSONB, -- average lead times by product category
+  shipping_info JSONB, -- shipping costs, zones, methods
+  payment_terms VARCHAR(100),
+  performance_rating DECIMAL(3,2), -- 1.0 to 5.0 rating
+  notes TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE product_categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL, -- 'lighting', 'furniture', 'fabrics', 'finishes', etc.
+  parent_category_id UUID REFERENCES product_categories(id),
+  description TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE products (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  supplier_id UUID REFERENCES suppliers(id) NOT NULL,
+  category_id UUID REFERENCES product_categories(id) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  model_number VARCHAR(100),
+  description TEXT,
+  source_url TEXT NOT NULL, -- original product page URL
+  price DECIMAL(10,2),
+  currency VARCHAR(3) DEFAULT 'USD',
+  dimensions JSONB, -- width, height, depth, weight
+  specifications JSONB, -- technical specs, materials, finishes
+  availability_status VARCHAR(50) DEFAULT 'available', -- 'available', 'discontinued', 'custom_order'
+  lead_time_days INTEGER,
+  minimum_order_quantity INTEGER DEFAULT 1,
+  trade_price DECIMAL(10,2), -- discounted price for trade accounts
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE product_images (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id UUID REFERENCES products(id) NOT NULL,
+  image_url TEXT NOT NULL,
+  alt_text VARCHAR(255),
+  is_primary BOOLEAN DEFAULT false,
+  image_type VARCHAR(50), -- 'product', 'lifestyle', 'detail', 'specification'
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE product_tags (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id UUID REFERENCES products(id) NOT NULL,
+  tag_type VARCHAR(50) NOT NULL, -- 'color', 'material', 'style', 'function', 'room'
+  tag_value VARCHAR(100) NOT NULL,
+  confidence_score DECIMAL(3,2), -- AI confidence in tag accuracy (0.0 to 1.0)
+  source VARCHAR(50) DEFAULT 'ai_generated', -- 'ai_generated', 'manual', 'supplier_provided'
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE product_colors (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id UUID REFERENCES products(id) NOT NULL,
+  color_name VARCHAR(100),
+  hex_code VARCHAR(7) NOT NULL, -- #RRGGBB format
+  color_family VARCHAR(50), -- 'neutral', 'warm', 'cool', 'bold'
+  dominance_percentage DECIMAL(5,2), -- percentage of image this color represents
+  extracted_from_image BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Project Product Selections
+CREATE TABLE project_product_selections (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) NOT NULL,
+  product_id UUID REFERENCES products(id) NOT NULL,
+  quantity INTEGER NOT NULL,
+  room_location VARCHAR(100), -- 'living room', 'master bedroom', etc.
+  status VARCHAR(50) DEFAULT 'considering', -- 'considering', 'specified', 'ordered', 'delivered'
+  notes TEXT,
+  selected_by UUID REFERENCES users(id),
+  selected_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Mood Boards & Collections
+CREATE TABLE mood_boards (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id),
+  firm_id UUID REFERENCES firms(id) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  is_template BOOLEAN DEFAULT false,
+  is_public BOOLEAN DEFAULT false,
+  created_by UUID REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE mood_board_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  mood_board_id UUID REFERENCES mood_boards(id) NOT NULL,
+  product_id UUID REFERENCES products(id),
+  image_url TEXT, -- for non-product images
+  position_x INTEGER, -- grid position
+  position_y INTEGER,
+  notes TEXT,
+  added_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+8.2 Essential API Endpoints
+
+```typescript
+// Core Orchestrator
+POST /api/sylo-core
+Request: { message: string, userId: string, context?: object }
+Response: { success: boolean, response: string, actions: Action[], suggestions: string[] }
+
+// Resource Management
+GET /api/projects?stage=concept&status=active
+POST /api/projects { clientId, name, type, budget, timeline }
+PUT /api/projects/[id] { stage?, status?, budget? }
+
+GET /api/tasks?project=[id]&stage=concept
+POST /api/tasks { projectId, title, stage, dueDate }
+
+// File Management (Design-Specific)
+POST /api/files/categorize { projectId, fileUrl, autoDetectType: boolean }
+GET /api/files?project=[id]&type=mood_board&stage=concept
+
+// Social Media Integration
+POST /api/social/generate-content { projectId, mediaUrls[], platforms[] }
+POST /api/social/schedule-post { content, scheduledFor, platform }
+
+// Financial Integration
+POST /api/xero/proposals { projectId, scope[], timeline, totalBudget }
+POST /api/xero/invoices { projectId, stage, amount, dueDate }
+```
+
+8.3 Enhanced API Endpoints
+
+```typescript
+// ...existing code...
+
+// Advanced Task Management
+GET /api/tasks?project=[id]&assignee=[userId]&status=in_progress&due_before=2025-06-15
+POST /api/tasks { projectId, title, description, assigneeId, dueDate, estimatedHours, parentTaskId?, dependencies? }
+PUT /api/tasks/[id] { status?, progress?, actualHours?, assigneeId? }
+POST /api/tasks/[id]/comments { content, mentions?, attachments? }
+GET /api/tasks/[id]/dependencies
+
+// Project Views & Analytics
+GET /api/projects/[id]/kanban?groupBy=status&filterBy=assignee
+GET /api/projects/[id]/gantt?startDate=2025-06-01&endDate=2025-08-31
+GET /api/projects/[id]/timeline?view=milestones
+GET /api/projects/[id]/dashboard
+
+// Team & Resource Management
+GET /api/users/workload?startDate=2025-06-01&endDate=2025-06-30
+POST /api/time-entries { userId, taskId, hours, date, description, billable }
+GET /api/teams/capacity?projectId=[id]&skills=interior_design,3d_modeling
+
+// Project Templates & Automation
+GET /api/templates?type=interior&firmId=[id]
+POST /api/projects/from-template { templateId, clientId, customizations }
+POST /api/workflows/automation { projectId, trigger, actions }
+
+// Advanced Analytics
+GET /api/analytics/projects?metric=delivery_performance&period=last_quarter
+GET /api/analytics/team?metric=utilization&userId=[id]
+GET /api/reports/client?clientId=[id]&includeFinancials=true
+```
+
+9. UI Framework & Design System
+
+9.1 Component Architecture (Based on Horizon UI Design Patterns)
+
+**Design System Foundation**:
+
+- Shadcn UI component library integration for consistent, accessible components
+- TailwindCSS utility-first styling with custom design tokens
+- Dark/light theme support with smooth transitions and user preference persistence
+- Responsive design system optimized for desktop, tablet, and mobile workflows
+
+**Core UI Components**:
+
+- **Navigation**: Collapsible sidebar with project context switching, breadcrumb navigation
+- **Data Display**: Advanced tables with sorting, filtering, search, and bulk actions
+- **Input Components**: Smart form inputs with validation, autocomplete, and design-specific field types
+- **Feedback**: Toast notifications, progress indicators, loading states, and confirmation dialogs
+- **Layout**: Grid systems, card layouts, modal overlays, and drawer components
+
+**Design-Specific UI Elements**:
+
+- **Visual Project Cards**: Mood board thumbnails, project status indicators, timeline progress bars
+- **Interactive Kanban Boards**: Drag-and-drop task management with swimlanes and WIP limits
+- **Gantt Chart Visualization**: Timeline views with dependency arrows and milestone markers
+- **Product Gallery**: Pinterest-style grid layouts with hover previews and quick actions
+- **Color Palette Tools**: Visual color pickers, palette generators, and color harmony displays
+
+9.2 Chat Interface Design
+
+**Conversational UI Components**:
+
+- **Message Threading**: Grouped conversations with context-aware message bubbles
+- **Smart Suggestions**: Contextual quick actions and command suggestions based on current project state
+- **Rich Media Support**: Image attachments, file previews, mood board embeds, and product cards
+- **Command Palette**: Slash commands for quick actions (/create-task, /schedule-meeting, /add-product)
+- **Voice Integration**: Speech-to-text input with push-to-talk functionality
+
+**AI Response Formatting**:
+
+- **Structured Responses**: Cards for project updates, task lists, calendar events, and product recommendations
+- **Interactive Elements**: Inline buttons for task completion, approval workflows, and quick edits
+- **Progress Indicators**: Real-time status updates for long-running operations
+- **Error Handling**: Graceful degradation with helpful error messages and recovery suggestions
+
+9.3 Dashboard & Analytics Views
+
+**Project Health Dashboard**:
+
+- **KPI Cards**: Project completion rates, team utilization, budget tracking, client satisfaction scores
+- **Timeline Visualization**: Gantt charts with critical path highlighting and risk indicators
+- **Resource Planning**: Team capacity charts, workload distribution, and skill allocation matrices
+- **Financial Overview**: Budget vs. actual spend, profit margins, invoice status, and cash flow projections
+
+**Team Performance Analytics**:
+
+- **Individual Metrics**: Task completion rates, time tracking accuracy, client feedback scores
+- **Team Collaboration**: Communication frequency, cross-project dependencies, knowledge sharing metrics
+- **Skill Development**: Training progress, certification tracking, specialization mapping
+- **Workload Balance**: Overtime alerts, capacity planning, and burnout prevention indicators
+
+9.4 Advanced UI Features
+
+**Real-time Collaboration**:
+
+- **Live Cursors**: See team members' activity in real-time during project planning
+- **Simultaneous Editing**: Conflict-free collaborative editing of project details and task descriptions
+- **Activity Feeds**: Real-time updates on project changes, task completions, and client communications
+- **Presence Indicators**: Team availability status and current project focus
+
+**Accessibility & Usability**:
+
+- **Keyboard Navigation**: Full keyboard support for power users and accessibility compliance
+- **Screen Reader Support**: ARIA labels, semantic HTML, and assistive technology compatibility
+- **High Contrast Mode**: Enhanced visibility options for users with visual impairments
+- **Customizable Layouts**: User-defined dashboard arrangements and workflow preferences
+
+10. Prompt Improvement & Library System
+
+10.1 Intelligent Prompt Enhancement Engine
+
+**Context-Aware Prompt Optimization**:
+
+- **Industry Template Library**: Pre-built prompt templates for architecture, interior design, branding, and creative workflows
+- **Project-Specific Suggestions**: Dynamic prompt recommendations based on current project phase, client type, and team composition
+- **Natural Language Processing**: Automatic intent clarification and parameter extraction from conversational inputs
+- **Learning Algorithm**: AI system that improves prompt accuracy based on user interaction patterns and successful outcomes
+
+**Smart Prompt Categories**:
+
+- **Project Initialization**: "Create a 3-month interior design project for a 2-bedroom apartment with modern aesthetic, $50k budget"
+- **Task Management**: "Schedule client presentation for next Tuesday, create preparation tasks for design team, send calendar invite"
+- **Resource Planning**: "Find brass pendant lights under $300, add to living room mood board, check lead times for project timeline"
+- **Team Coordination**: "Assign 3D rendering tasks to Sarah, update project timeline, notify client of milestone completion"
+- **Client Communication**: "Draft project update email highlighting completed concept phase, attach mood board, schedule follow-up meeting"
+
+10.2 Comprehensive Prompt Library
+
+**Categorized Prompt Collection**:
+
+**Project Management Prompts**:
+
+```
+- "Create project '{project_name}' for {client_name} with {project_type} scope, {budget} budget, deadline {date}"
+- "Update project status to {stage}, notify team members, create next phase tasks"
+- "Generate project health report for {time_period}, include budget variance and timeline status"
+- "Schedule team standup for {date/time}, add agenda items: project updates, resource allocation, client feedback"
+```
+
+**Client Interaction Prompts**:
+
+```
+- "Prepare client presentation for {project_name}, include mood boards, timeline, and budget breakdown"
+- "Draft proposal for {service_type} project, include scope, timeline, deliverables, and investment"
+- "Create client feedback form for {project_phase}, include visual rating scales and comment sections"
+- "Schedule client check-in call, prepare status update with visual progress indicators"
+```
+
+**Design Workflow Prompts**:
+
+```
+- "Create mood board for {room/space} with {style_preference}, budget range {amount}, color palette {colors}"
+- "Find products: {product_category} in {style} style, {color} color family, under {budget} per item"
+- "Generate specification sheet for {product/material}, include dimensions, installation requirements, lead times"
+- "Create design presentation with before/after concepts, material selections, and implementation timeline"
+```
+
+**Team Coordination Prompts**:
+
+```
+- "Assign {task_type} to {team_member} with {deadline}, add to {project_name} timeline"
+- "Check team availability for {date_range}, identify capacity constraints, suggest resource reallocation"
+- "Create handoff checklist for {project_phase}, include deliverables, approval requirements, next steps"
+- "Track time spent on {project/task}, generate productivity report, identify optimization opportunities"
+```
+
+**Financial Management Prompts**:
+
+```
+- "Generate invoice for {project_name} {phase}, include completed deliverables, expense breakdown, payment terms"
+- "Track project expenses for {time_period}, categorize by type, compare against budget allocation"
+- "Create cost estimate for {scope_change}, include labor, materials, timeline impact"
+- "Process supplier payment for {order_number}, update project budget, track delivery status"
+```
+
+10.3 Prompt Customization & Learning System
+
+**Personalized Prompt Templates**:
+
+- **User-Specific Customization**: Adapt prompts to individual workflow preferences, frequently used parameters, and communication styles
+- **Firm-Level Standards**: Shared prompt libraries for consistent terminology, processes, and client communication across the organization
+- **Client-Specific Adaptations**: Customized prompts that incorporate client preferences, communication styles, and project-specific requirements
+- **Industry Best Practices**: Continuously updated prompt templates reflecting latest design industry standards and methodologies
+
+**AI Learning & Improvement**:
+
+- **Success Pattern Recognition**: Analyze successful project outcomes to identify optimal prompt structures and parameters
+- **Error Correction Learning**: Automatically improve prompt suggestions based on user corrections and failed attempts
+- **Context Awareness**: Develop deeper understanding of project contexts to provide more relevant and accurate suggestions
+- **Collaborative Intelligence**: Learn from team interactions to suggest better coordination and communication prompts
+
+**Advanced Prompt Features**:
+
+- **Multi-Step Workflows**: Chain complex prompts together for comprehensive project management sequences
+- **Conditional Logic**: Smart prompts that adapt based on project variables, timeline constraints, and resource availability
+- **Integration Triggers**: Prompts that automatically trigger external integrations (calendar, email, file sharing, supplier systems)
+- **Quality Assurance**: Built-in validation to ensure prompts generate complete, accurate, and actionable results
+
+10.4 Prompt Library Management Interface
+
+**Visual Prompt Builder**:
+
+- **Drag-and-Drop Interface**: Intuitive prompt construction with visual parameter placeholders and logic flow
+- **Template Gallery**: Browse, preview, and customize from extensive library of proven prompt templates
+- **Syntax Highlighting**: Smart editor with autocomplete, parameter validation, and error detection
+- **Testing Environment**: Sandbox mode for testing prompts before deployment in live projects
+
+**Collaboration & Sharing**:
+
+- **Team Libraries**: Shared prompt collections with version control and access permissions
+- **Community Marketplace**: Exchange prompt templates with other design professionals and firms
+- **Usage Analytics**: Track prompt performance, success rates, and optimization opportunities
+- **Feedback Loop**: Rating system and comments for continuous prompt improvement
+
+11. Technical Implementation Details
+
+11.1 UI Technology Stack
+
+**Frontend Framework**:
+
+- Next.js 14+ with App Router for optimal performance and SEO
+- React 18+ with Concurrent Features for responsive user interactions
+- TypeScript for type safety and developer experience
+- TailwindCSS + Shadcn UI for consistent, accessible component library
+
+**State Management**:
+
+- Zustand for lightweight, scalable state management
+- React Query (TanStack Query) for server state and caching
+- Context API for theme management and user preferences
+- Local Storage persistence for user customizations and draft states
+
+**Real-time Features**:
+
+- WebSocket connections for live collaboration and updates
+- Server-Sent Events for real-time notifications and activity feeds
+- Optimistic updates for immediate user feedback
+- Conflict resolution for simultaneous editing scenarios
+
+11.2 Prompt System Architecture
+
+**Prompt Processing Pipeline**:
+
+- **Intent Recognition**: NLP models for understanding user intent and extracting entities
+- **Context Enrichment**: Augment prompts with current project state, user history, and environmental factors
+- **Template Matching**: AI-powered selection of optimal prompt templates based on context and success patterns
+- **Parameter Validation**: Ensure all required parameters are present and valid before execution
+- **Execution Engine**: Route processed prompts to appropriate service adapters and orchestrate complex workflows
+
+**Machine Learning Integration**:
+
+- **Prompt Optimization Models**: Continuously improve prompt effectiveness based on outcome data
+- **Personalization Engine**: Adapt suggestions to individual user preferences and behavior patterns
+- **Success Prediction**: Estimate likelihood of prompt success before execution
+- **Anomaly Detection**: Identify unusual patterns that may indicate errors or security issues
+
+12. References & Inspiration
+
+12.1 UI Framework & Design System References
+
+**Horizon UI Ecosystem**:
+
+- **Base Template**: <https://github.com/horizon-ui/shadcn-nextjs-boilerplate> - Next.js boilerplate with Shadcn UI components, providing the foundation for consistent design patterns and component architecture
+- **Main Organization**: <https://github.com/horizon-ui> - Complete collection of modern admin templates and UI components for React/Next.js applications
+- **AI Template Pro**: <https://github.com/horizon-ui/horizon-ai-template-pro> - Professional AI-powered admin template with advanced dashboard components and data visualization elements
+- **ChatGPT Template**: <https://github.com/horizon-ui/chatgpt-ai-template> - Conversational AI interface template providing chat UI patterns and interaction design inspiration
+
+**Design System Credits**:
+
+- Component library structure and theming approach adapted from Horizon UI's Shadcn integration
+- Dashboard layout patterns and data visualization components inspired by Horizon AI Template Pro
+- Chat interface design and conversational UX patterns based on ChatGPT AI Template
+- Dark/light theme implementation and accessibility features following Horizon UI standards
+
+12.2 Industry Standards & Methodologies
+
+**Design Project Management**:
+
+- RIBA Plan of Work 2020 for architecture and interior design project phases
+- Design Council's Double Diamond methodology for creative problem-solving processes
+- Agile project management principles adapted for design studio workflows
+- Industry-standard design deliverable frameworks and client communication protocols
+
+**Technology Stack References**:
+
+- Next.js App Router best practices and performance optimization patterns
+- Shadcn UI component library for accessible, customizable React components
+- TailwindCSS utility-first CSS framework for responsive design systems
+- NeonDB serverless PostgreSQL for scalable database architecture with branching capabilities
