@@ -1,233 +1,277 @@
-# Sylo-Max - AI-Powered Design Studio Management Platform
+# Sylo-Max - AI-Powered Design Studio Dashboard
 
-> **Next.js 14 + TypeScript + AI** | Conversational project management for design studios, powered by OpenAI GPT-4
+> **Next.js 14 + Horizon UI + TypeScript + AI** | Professional dashboard with conversational AI for creative professionals
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2.4-black?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5.2-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18.3.1-blue?logo=react&logoColor=white)](https://reactjs.org/)
-[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel&logoColor=white)](https://vercel.com)
-[![OpenAI](https://img.shields.io/badge/AI-OpenAI%20GPT--4-green?logo=openai&logoColor=white)](https://openai.com/)
+[![Horizon UI](https://img.shields.io/badge/UI-Horizon%20Design-blue)](https://horizon-ui.com/)
+[![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
 ## 🎯 Overview
 
-Sylo-Max is the next-generation conversational project management platform specifically designed for design studios. Built with **Next.js 14**, **TypeScript**, and **OpenAI GPT-4**, it understands the creative process from initial client briefing through final delivery and post-project marketing.
+Sylo-Max is a **professional dashboard application** built with **Next.js 14**, **TypeScript**, and **Horizon UI design principles**. It features an always-visible AI chat interface, modern navy-themed styling, and responsive design optimized for creative professionals.
+
+## ✨ Key Features
+
+**🎨 Professional Horizon UI Design**
+- Navy gradient color scheme with blue accents
+- Glassmorphism effects with backdrop blur
+- Professional sidebar navigation with smooth animations
+- Responsive three-column layout (Sidebar + Content + Chat)
+
+**🤖 Always-Visible AI Assistant**
+- Fixed chat panel on the right side
+- Real-time messaging with typing indicators
+- Context-aware responses
+- Gradient styling with professional appearance
+
+**📊 Dashboard Components**
+- Stats cards with trend indicators
+- Recent projects with progress tracking
+- Task management with priority badges
+- Quick actions with gradient backgrounds
+
+**🌙 Dark/Light Theme Support**
+- Seamless theme switching
+- Navy color variations for dark mode
+- Consistent styling across all components
 
 ## 🚀 Tech Stack
 
 **Frontend Framework:**
 - ⚡ **Next.js 14.2.4** - React framework with App Router
 - 🔷 **TypeScript 5.5.2** - Type-safe development
-- ⚛️ **React 18.3.1** - UI library with hooks and context
+- ⚛️ **React 18.3.1** - UI library
 
 **Styling & UI:**
-- 🎨 **TailwindCSS 3.4.4** - Utility-first CSS framework
-- 🧩 **Shadcn UI** - Headless UI components with Radix
-- 🎭 **Framer Motion** - Animation library
+- 🎨 **TailwindCSS 3.4.4** - Utility-first CSS with custom navy colors
+- 🧩 **Shadcn UI** - Headless components with Horizon UI styling
+- 🎭 **Lucide React** - Beautiful icons
 - 🌙 **Next Themes** - Dark/light mode support
 
-**Backend & Database:**
-- 🗄️ **NeonDB** - Serverless PostgreSQL
-- 🔗 **Prisma ORM** - Type-safe database client
-- 🔐 **NextAuth.js** - Authentication
-- 📡 **Supabase** - Real-time subscriptions
-
-**AI & Integrations:**
-- 🤖 **OpenAI GPT-4** - Conversational AI with function calling
-- 📅 **Google Calendar API** - Schedule integration
-- 💰 **Xero API** - Accounting integration
-- 🎬 **RunwayML** - Video generation
-- 📱 **Social Media APIs** - Content distribution
-
-**Development Tools:**
-- 📦 **ESLint + Prettier** - Code quality
-- 🧪 **Jest** - Testing framework
-- 📊 **React Query** - Data fetching
-- 🛡️ **Zod** - Schema validation
+**Component Features:**
+- 🔧 **Horizon UI Components** - Professional dashboard elements
+- 📱 **Responsive Design** - Mobile-first approach
+- ♿ **Accessibility** - ARIA labels and keyboard navigation
+- ⚡ **Performance** - Optimized re-renders and lazy loading
 
 ## 📁 Project Structure
 
 ```
-Sylo-Max/
+Sylo Final/
 ├── 📋 PRD                     # Product Requirements Document
-├── 📚 docs/                   # Complete technical documentation
-│   ├── README.md              # Product overview & setup
-│   ├── SYSTEM_ARCHITECTURE.md # Technical architecture
-│   ├── DB_SCHEMA.md           # Database design
-│   ├── API_ROUTES.md          # API specifications
-│   ├── COMPONENTS.md          # Frontend components
-│   ├── DEPLOYMENT.md          # Deployment guides
-│   ├── ROADMAP.md             # Development roadmap
-│   └── AI_PROMPT.md           # AI personality guide
-└── 🔧 .env.example            # Environment template
+├── 📚 docs/                   # Updated technical documentation
+│   ├── README.md              # Product overview
+│   ├── COMPONENTS.md          # Horizon UI component guide
+│   ├── API_ROUTES.md          # Dashboard API specifications
+│   └── ...                    # Other documentation
+├── 🎨 app/                    # Next.js App Router
+│   ├── globals.css            # Global styles with navy theme
+│   ├── layout.tsx             # Root layout with theme provider
+│   ├── page.tsx               # Landing page
+│   └── (dashboard)/           # Dashboard routes
+│       ├── layout.tsx         # Three-column dashboard layout
+│       └── dashboard/
+│           └── page.tsx       # Main dashboard with stats
+├── 🧩 components/             # Reusable components
+│   ├── ui/                    # Shadcn UI with Horizon styling
+│   ├── dashboard/             # Dashboard-specific components
+│   ├── chat/                  # AI chat interface
+│   └── providers/             # Context providers
+├── 🎨 styles/                 # Additional styling
+├── 📋 types/                  # TypeScript definitions
+└── 🔧 Configuration files
 ```
 
-## 🏗️ Architecture
+## 🎨 Horizon UI Design System
 
-Sylo-Max is built with a modern, scalable architecture:
+**Color Palette:**
+```typescript
+// Navy color scheme (tailwind.config.js)
+navy: {
+  50: '#e6f0ff',   // Light accents
+  100: '#cce0ff',  // Subtle backgrounds
+  200: '#99c2ff',  // Light elements
+  300: '#66a3ff',  // Interactive elements
+  400: '#3385ff',  // Primary actions
+  500: '#0066ff',  // Brand primary
+  600: '#0052cc',  // Hover states
+  700: '#003d99',  // Active states
+  800: '#002966',  // Dark backgrounds
+  900: '#001433',  // Deepest navy
+}
+```
 
-- **Frontend**: Next.js 14+ with TypeScript, TailwindCSS, Shadcn UI
-- **Backend**: Next.js API routes with serverless functions
-- **Database**: NeonDB (Serverless PostgreSQL) with Prisma ORM
-- **AI**: OpenAI GPT-4 with function calling
-- **Real-time**: WebSocket connections for collaboration
-- **Deployment**: Vercel with edge functions
-
-## 📖 Documentation
-
-Our documentation is designed for both developers and AI agents:
-
-| Document | Purpose | Audience |
-|----------|---------|----------|
-| [📖 README](docs/README.md) | Product overview & setup | Everyone |
-| [🏗️ System Architecture](docs/SYSTEM_ARCHITECTURE.md) | Technical design | Developers |
-| [🗄️ Database Schema](docs/DB_SCHEMA.md) | Data model | Backend developers |
-| [🔌 API Routes](docs/API_ROUTES.md) | API specifications | Frontend/Backend |
-| [🧩 Components](docs/COMPONENTS.md) | UI component guide | Frontend developers |
-| [🚀 Deployment](docs/DEPLOYMENT.md) | Deployment guides | DevOps |
-| [🗺️ Roadmap](docs/ROADMAP.md) | Development plan | Project managers |
-| [🤖 AI Prompt](docs/AI_PROMPT.md) | AI behavior guide | AI developers |
+**Key Styling Patterns:**
+- **Sidebar**: `bg-gradient-to-b from-navy-800 to-navy-900` with backdrop blur
+- **Cards**: `!bg-white dark:!bg-navy-800` with subtle shadows
+- **Active States**: `bg-gradient-to-r from-blue-500 to-blue-600`
+- **Buttons**: Blue gradients with hover animations
+- **Typography**: Poppins font family for professional appearance
 
 ## 🛠️ Development
 
-### Getting Started
+### Quick Start
 ```bash
+# Install dependencies
+npm install
+
 # Start development server
 npm run dev
 
-# Run type checking
-npm run type-check
-
-# Run linting
-npm run lint
-
-# Run tests
-npm test
-
-# Database operations
-npx prisma studio    # Open database GUI
-npx prisma db push   # Apply schema changes
+# Open http://localhost:3000
 ```
 
-### Environment Setup
-Copy `.env.example` to `.env.local` and configure:
-- Database connection
-- OpenAI API key
-- Google OAuth credentials
-- Xero integration keys
-- Social media API keys
-
-## 🔐 Environment Variables
-
-Key environment variables needed:
-
+### Key Commands
 ```bash
-# Core Services
-DATABASE_URL="postgresql://..."
-OPENAI_API_KEY="sk-..."
-SUPABASE_URL="https://..."
-
-# Integrations
-GOOGLE_CLIENT_ID="..."
-XERO_CLIENT_ID="..."
-RUNWAY_API_KEY="..."
-
-# See .env.example for complete list
+npm run dev          # Development server
+npm run build        # Production build
+npm run type-check   # TypeScript validation
+npm run lint         # ESLint checking
 ```
+
+### Component Development
+```bash
+# Add new Shadcn UI components
+npx shadcn-ui@latest add [component-name]
+
+# Available components used:
+# button, card, input, badge, avatar, separator
+# dropdown-menu, tooltip, progress, skeleton
+```
+
+## 📊 Dashboard Features
+
+**Stats Overview:**
+- Active Projects counter with trend indicators
+- Tasks Due with priority breakdown
+- Client Count tracking
+- Revenue metrics with percentage changes
+
+**Project Management:**
+- Recent Projects list with progress bars
+- Priority-based task organization
+- Quick action buttons with gradients
+- Responsive card layouts
+
+**AI Chat Interface:**
+- Always-visible right panel (400px width)
+- Real-time message streaming
+- Professional navy-themed styling
+- Smooth animations and transitions
+
+**Navigation:**
+- Professional sidebar (300px width)
+- User profile section with avatar
+- Menu items with active state indicators
+- Breadcrumb navigation in header
+
+## 🌙 Theme Support
+
+**Light Mode:**
+- Clean white backgrounds
+- Navy accents and blue gradients
+- Subtle gray borders and shadows
+
+**Dark Mode:**
+- Navy backgrounds with depth
+- Consistent blue accent colors
+- Enhanced readability with proper contrast
+
+**Theme Toggle:**
+- Smooth transitions between modes
+- Persistent user preference
+- System theme detection
+
+## 📱 Responsive Design
+
+**Desktop (1200px+):**
+- Three-column layout (Sidebar + Content + Chat)
+- Full feature visibility
+- Optimal spacing and typography
+
+**Tablet (768px - 1199px):**
+- Collapsible sidebar
+- Adjusted chat panel width
+- Responsive grid layouts
+
+**Mobile (< 768px):**
+- Stacked layout with navigation drawer
+- Full-width content area
+- Touch-optimized interactions
+
+## 🔧 Configuration
+
+**Tailwind Config:**
+- Custom navy color palette
+- Poppins font family
+- Extended spacing and shadows
+- Dark mode class strategy
+
+**TypeScript:**
+- Strict type checking
+- Path aliases (@/ for src)
+- Component prop interfaces
+- API response types
+
+## 📚 Documentation
+
+| Document | Description | Updated |
+|----------|-------------|---------|
+| [🧩 COMPONENTS.md](docs/COMPONENTS.md) | Horizon UI component guide | ✅ Latest |
+| [🔌 API_ROUTES.md](docs/API_ROUTES.md) | Dashboard API specifications | ✅ Latest |
+| [🎯 PRD](PRD) | Product requirements | ✅ Current |
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+**Vercel (Recommended):**
 ```bash
+# Deploy to Vercel
 npm install -g vercel
 vercel --prod
 ```
 
-### Docker
+**Build Process:**
 ```bash
-docker build -t sylo-max .
-docker run -p 3000:3000 sylo-max
+# Create production build
+npm run build
+
+# Start production server
+npm start
 ```
 
-### Kubernetes
-See [Deployment Guide](docs/DEPLOYMENT.md) for enterprise deployment options.
+## 🎯 AI Integration Ready
+
+The dashboard is prepared for AI integration with:
+- **Chat Interface**: Ready for OpenAI API integration
+- **Context Awareness**: Component state accessible to AI
+- **Action Triggers**: UI prepared for AI-driven actions
+- **Real-time Updates**: WebSocket-ready architecture
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Commit Convention
-We use [Conventional Commits](https://www.conventionalcommits.org/):
-- `feat:` - New features
-- `fix:` - Bug fixes
-- `docs:` - Documentation changes
-- `style:` - Code style changes
-- `refactor:` - Code refactoring
-- `test:` - Adding tests
-- `chore:` - Maintenance tasks
-
-## 🎯 AI-First Development
-
-Sylo-Max is designed to be built and maintained by AI agents. Our documentation includes:
-
-- **🤖 Agent-Executable Tasks**: Atomic, well-defined development tasks
-- **📝 Implementation-Ready Specs**: Complete TypeScript interfaces and schemas
-- **🔧 Agent-Optimized Language**: Prompts designed for AI consumption
-- **✅ Success Criteria**: Measurable outcomes for each development phase
-
-## 📊 Project Status
-
-- **Phase**: Documentation Complete ✅
-- **Architecture**: Designed ✅
-- **Database**: Schema Ready ✅
-- **API**: Specified ✅
-- **Components**: Planned ✅
-- **Deployment**: Configured ✅
-
-**Next**: Begin Phase 1 development (Core Foundation)
-
-## 🏢 For Design Studios
-
-Sylo-Max understands your unique workflows:
-
-- **RIBA Stages**: Built-in support for architectural project phases
-- **Design Terminology**: AI trained on interior design and architecture language
-- **Supplier Management**: Integrated product catalogs and sourcing tools
-- **Client Communication**: Automated updates and approval workflows
-- **Team Coordination**: Role-based permissions and task assignments
-
-## 🎨 Built for Creatives
-
-- **Visual Product Discovery**: Pinterest-style product browsing
-- **Mood Board Integration**: Drag-and-drop board creation
-- **Color Palette Extraction**: AI-powered color analysis
-- **Material Libraries**: Organized supplier directories
-- **Social Media Automation**: Content creation and scheduling
-
-## 📞 Support
-
-- **Documentation**: Complete guides in `/docs`
-- **Issues**: GitHub Issues for bug reports
-- **Discussions**: GitHub Discussions for questions
-- **Email**: support@sylo-max.com (coming soon)
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Follow** Horizon UI design principles
+4. **Test** responsive behavior and dark mode
+5. **Commit** with conventional commits (`feat:`, `fix:`, `docs:`)
+6. **Push** and create a Pull Request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- Built with ❤️ for the design community
-- Powered by OpenAI GPT-4
-- UI components from Shadcn UI
-- Icons from Lucide React
+- **Horizon UI** - Professional dashboard design system
+- **Shadcn UI** - Excellent headless components
+- **Tailwind CSS** - Utility-first styling
+- **Lucide React** - Beautiful icon system
+- **Next.js Team** - Amazing React framework
 
 ---
 
-**Ready to transform your design studio?** 🚀
+**Experience professional dashboard design** 🎨 **with conversational AI** 🤖
 
-[📖 Read the docs](docs/) • [🚀 Deploy now](docs/DEPLOYMENT.md) • [🤝 Contribute](CONTRIBUTING.md)
+[📊 View Dashboard](http://localhost:3000/dashboard) • [📚 Read Docs](docs/) • [🎨 Design System](docs/COMPONENTS.md)

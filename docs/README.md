@@ -1,44 +1,56 @@
-# Sylo-core - Conversational Project Management for Design Studios
+# Sylo-Max - AI-Powered Design Studio Management Dashboard
 
 ## Product Overview
 
-Sylo-core is the orchestration engine behind Sylo — a conversational project management assistant specifically built for design studios including interior design, architecture, branding, and creative agencies. Unlike generic project management tools, Sylo understands the creative process from initial client briefing through to final delivery and post-project marketing.
+Sylo-Max is a comprehensive AI-powered project management dashboard specifically built for design studios including interior design, architecture, branding, and creative agencies. Built with Horizon UI design principles, it provides a professional, modern interface for managing creative workflows from initial client briefing through to final delivery.
 
 ## Key Features
 
+- **AI-Powered Dashboard**: Modern Horizon UI-styled interface with real-time AI chat assistance
 - **Natural Language Project Management**: Create, update, and manage clients, projects, tasks, and schedules using conversational AI
-- **Design-Specific Workflows**: Built-in understanding of RIBA Plan of Work 2020 and standard creative project phases
-- **Intelligent Task Orchestration**: AI-powered task prioritization based on constraints, deadlines, and user intent
-- **Supplier Directory & Product Intelligence**: AI-powered product cataloging with visual browsing and smart recommendations
-- **Advanced Team Collaboration**: Real-time collaboration with live cursors, @mentions, and proofing workflows
-- **Multi-Provider Video Generation**: Integrated video content creation for social media marketing
-- **External Integrations**: Google Calendar, Gmail, Xero accounting, and social media platforms
+- **Design-Specific Workflows**: Built-in understanding of creative project phases and milestones
+- **Real-time Chat Interface**: Always-accessible AI assistant for instant project guidance
+- **Professional UI Components**: Horizon UI design system with navy color scheme and gradient accents
+- **Dark/Light Theme Support**: Seamless theme switching with consistent styling
+- **Responsive Design**: Mobile-first approach with optimized layouts for all screen sizes
+
+## Design System & UI
+
+### Horizon UI Integration
+- **Color Palette**: Navy-based color scheme (navy-50 through navy-900) with blue gradient accents
+- **Typography**: Poppins font family with proper weight hierarchy
+- **Components**: Card-based layout with shadow system and backdrop blur effects
+- **Navigation**: Professional sidebar with gradient active states and user profile section
+- **Interactive Elements**: Hover effects, smooth transitions, and responsive design patterns
+
+### Dashboard Features
+- **Statistics Cards**: Real-time project metrics with colored icons and trend indicators
+- **Project Management**: Visual progress tracking with gradient progress bars
+- **Task Management**: Priority-based task lists with status indicators
+- **Quick Actions**: Gradient action cards for common workflows
+- **Search Integration**: Global search with backdrop blur header design
 
 ## Core Technologies
 
-### Backend Stack
-- **Framework**: Next.js 14+ with App Router (TypeScript)
-- **Database**: NeonDB (Serverless Postgres) with Prisma ORM
-- **Authentication**: Supabase Auth or Clerk
-- **Hosting**: Vercel with edge functions and serverless API routes
-- **AI Integration**: OpenAI GPT-4 with function calling
-- **Voice**: ElevenLabs TTS integration
-
 ### Frontend Stack
-- **UI Framework**: Next.js + React 18+
-- **Styling**: TailwindCSS with Shadcn UI components
-- **Design System**: Custom design tokens with dark/light theme support
-- **Real-time**: WebSocket connections for live collaboration
-- **Charts**: Recharts for analytics and Gantt chart visualizations
+- **Framework**: Next.js 14+ with App Router (TypeScript)
+- **Styling**: TailwindCSS with Horizon UI design patterns
+- **UI Components**: Shadcn UI with custom Horizon UI theming
+- **Design System**: Custom navy color palette with gradient accents
+- **Theme Support**: next-themes for dark/light mode switching
+- **Icons**: Lucide React for consistent iconography
 
-### External Integrations
-- **Calendar**: Google Calendar API
-- **Email**: Gmail API
-- **Accounting**: Xero API
-- **Video Generation**: 
-  - Primary: Wan2.1-I2V-14B-720P (self-hosted)
-  - Fallback: Runway ML Gen-3 API
-  - Budget: Wan2.1-I2V-14B-480P
+### Backend Stack
+- **Database**: NeonDB (Serverless Postgres) with Prisma ORM
+- **Authentication**: Supabase Auth integration
+- **Hosting**: Vercel with edge functions and serverless API routes
+- **AI Integration**: OpenAI GPT-4 with function calling for chat interface
+
+### Key Components
+- **SidebarNav**: Professional navigation with Horizon UI styling
+- **DashboardHeader**: Breadcrumb navigation with search and controls
+- **ChatInterface**: Real-time AI assistant with message history
+- **Dashboard Cards**: Statistics and project tracking components
 
 ## Quick Start
 
@@ -51,8 +63,8 @@ Sylo-core is the orchestration engine behind Sylo — a conversational project m
 
 ```bash
 # Clone the repository
-git clone https://github.com/sylo-ai/sylo-core.git
-cd sylo-core
+git clone https://github.com/sylo-ai/sylo-max.git
+cd sylo-max
 
 # Install dependencies
 npm install
@@ -64,16 +76,13 @@ cp .env.example .env.local
 npx prisma generate
 npx prisma db push
 
-# Seed initial data (optional)
-npm run db:seed
-
 # Start development server
 npm run dev
 ```
 
 ### Environment Variables
 
-Required environment variables (see `.env.example`):
+Required environment variables:
 
 ```bash
 # Database
@@ -86,17 +95,10 @@ SUPABASE_ANON_KEY="..."
 
 # AI Services
 OPENAI_API_KEY="sk-..."
-ELEVENLABS_API_KEY="..."
 
-# External APIs
-GOOGLE_CLIENT_ID="..."
-GOOGLE_CLIENT_SECRET="..."
-XERO_CLIENT_ID="..."
-XERO_CLIENT_SECRET="..."
-
-# Video Generation
-RUNWAY_API_KEY="..."
-WAN21_API_ENDPOINT="..."
+# App Configuration
+NEXTAUTH_SECRET="..."
+NEXTAUTH_URL="http://localhost:3000"
 ```
 
 ## Project Structure
@@ -104,46 +106,66 @@ WAN21_API_ENDPOINT="..."
 ```
 /
 ├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   ├── (dashboard)/       # Protected dashboard pages
-│   └── (auth)/           # Authentication pages
+│   ├── (dashboard)/       # Dashboard layout and pages
+│   │   ├── layout.tsx     # Dashboard layout with sidebar and chat
+│   │   └── dashboard/     # Main dashboard page
+│   ├── (auth)/           # Authentication pages
+│   └── globals.css       # Global styles with Horizon UI theming
 ├── components/            # Reusable UI components
-│   ├── ui/               # Shadcn UI components
-│   ├── charts/           # Chart components
-│   └── forms/            # Form components
-├── lib/                  # Utility functions and configurations
-│   ├── db/               # Database utilities and Prisma client
-│   ├── ai/               # AI service integrations
-│   └── integrations/     # External API clients
-├── prisma/               # Database schema and migrations
-├── public/               # Static assets
-└── types/                # TypeScript type definitions
+│   ├── dashboard/        # Dashboard-specific components
+│   │   ├── sidebar-nav.tsx
+│   │   └── dashboard-header.tsx
+│   ├── chat/            # AI chat interface
+│   │   └── chat-interface.tsx
+│   ├── ui/              # Shadcn UI components
+│   └── providers/       # Theme and context providers
+├── lib/                 # Utility functions and configurations
+│   └── utils.ts         # Tailwind utilities and helpers
+├── prisma/              # Database schema and migrations
+├── public/              # Static assets
+└── types/               # TypeScript type definitions
 ```
+
+## Dashboard Features
+
+### Main Dashboard
+- **Statistics Overview**: Active projects, tasks due today, client count, and revenue tracking
+- **Project Management**: Recent projects with progress indicators and status tracking
+- **Task Management**: Upcoming tasks with priority levels and due dates
+- **Quick Actions**: AI-assisted project creation, task management, and scheduling
+
+### AI Chat Interface
+- **Real-time Assistance**: Always-visible chat panel for instant help
+- **Message History**: Persistent conversation history with timestamps
+- **Contextual Responses**: AI understanding of current dashboard context
+- **Typing Indicators**: Visual feedback for AI response generation
+
+### Navigation & UX
+- **Professional Sidebar**: Horizon UI-styled navigation with active state indicators
+- **Search Integration**: Global search with backdrop blur effects
+- **Theme Switching**: Seamless dark/light mode with consistent styling
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 
 ## Development Workflow
 
 ### Git Workflow
 - **Main Branch**: Production-ready code
-- **Develop Branch**: Integration branch for features
 - **Feature Branches**: `feature/description-of-feature`
 - **Hotfix Branches**: `hotfix/description-of-fix`
 
 ### Code Standards
 - TypeScript strict mode enabled
 - ESLint + Prettier for code formatting
-- Conventional commits for commit messages
-- Pre-commit hooks for linting and testing
+- Horizon UI design patterns for consistent styling
+- Component composition with proper TypeScript typing
 
-### Testing
+### Deployment
 ```bash
-# Run unit tests
-npm run test
+# Build for production
+npm run build
 
-# Run e2e tests
-npm run test:e2e
-
-# Run type checking
-npm run type-check
+# Deploy to Vercel
+vercel --prod
 ```
 
 ## API Documentation
@@ -151,13 +173,13 @@ npm run type-check
 The main conversational API endpoint:
 
 ```typescript
-POST /api/sylo-core
+POST /api/chat
 {
   "message": "Create a new project for ABC Corp interior design",
   "userId": "user-uuid",
   "context": {
     "currentProject": "project-uuid",
-    "timeWindow": "2025-06-07T09:00:00Z"
+    "timestamp": "2025-06-07T09:00:00Z"
   }
 }
 ```
@@ -168,13 +190,14 @@ See `API_ROUTES.md` for complete endpoint documentation.
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Follow Horizon UI design patterns for new components
+4. Commit changes (`git commit -m 'feat: add amazing feature'`)
+5. Push to branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
 
 ## License
 
-[License Type] - See LICENSE file for details
+MIT License - See LICENSE file for details
 
 ## Support
 

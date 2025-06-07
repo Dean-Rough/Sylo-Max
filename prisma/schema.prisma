@@ -1,0 +1,408 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Core Tables
+
+model Firm {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                 String    @db.VarChar(255)
+  slug                 String    @unique @db.VarChar(100)
+  subscriptionTier     String    @default("pro") @map("subscription_tier") @db.VarChar(50)
+  subscriptionStatus   String    @default("active") @map("subscription_status") @db.VarChar(50)
+  billingEmail         String?   @map("billing_email") @db.VarChar(255)
+  settings             Json      @default("{}")
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt            DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relations
+  users        User[]
+  clients      Client[]
+  projects     Project[]
+  suppliers    Supplier[]
+  products     Product[]
+  files        File[]
+  integrations Integration[]
+
+  @@map("firms")
+}
+
+model User {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firmId           String    @map("firm_id") @db.Uuid
+  supabaseUserId   String?   @unique @map("supabase_user_id") @db.Uuid
+  email            String    @unique @db.VarChar(255)
+  firstName        String?   @map("first_name") @db.VarChar(100)
+  lastName         String?   @map("last_name") @db.VarChar(100)
+  role             String    @default("designer") @db.VarChar(50)
+  avatarUrl        String?   @map("avatar_url")
+  preferences      Json      @default("{}")
+  lastActiveAt     DateTime? @map("last_active_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt        DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relations
+  firm                     Firm                @relation(fields: [firmId], references: [id])
+  createdClients           Client[]            @relation("CreatedClients")
+  managedProjects          Project[]           @relation("ProjectManager")
+  createdProjects          Project[]           @relation("CreatedProjects")
+  assignedTasks            Task[]              @relation("AssignedTasks")
+  createdTasks             Task[]              @relation("CreatedTasks")
+  createdMilestones        Milestone[]         @relation("CreatedMilestones")
+  comments                 Comment[]
+  uploadedFiles            File[]
+  createdSuppliers         Supplier[]          @relation("CreatedSuppliers")
+  createdProducts          Product[]           @relation("CreatedProducts")
+  addedProjectProducts     ProjectProduct[]    @relation("AddedProjectProducts")
+  createdIntegrations      Integration[]       @relation("CreatedIntegrations")
+  chatHistory              ChatHistory[]
+  auditLogs                AuditLog[]
+
+  @@map("users")
+}
+
+model Client {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firmId         String    @map("firm_id") @db.Uuid
+  name           String    @db.VarChar(255)
+  email          String?   @db.VarChar(255)
+  phone          String?   @db.VarChar(50)
+  company        String?   @db.VarChar(255)
+  address        Json?
+  contactPerson  String?   @map("contact_person") @db.VarChar(255)
+  xeroContactId  String?   @map("xero_contact_id") @db.VarChar(255)
+  notes          String?
+  status         String    @default("active") @db.VarChar(50)
+  createdBy      String?   @map("created_by") @db.Uuid
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relations
+  firm      Firm      @relation(fields: [firmId], references: [id])
+  creator   User?     @relation("CreatedClients", fields: [createdBy], references: [id])
+  projects  Project[]
+
+  @@map("clients")
+}
+
+model Project {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firmId            String    @map("firm_id") @db.Uuid
+  clientId          String    @map("client_id") @db.Uuid
+  name              String    @db.VarChar(255)
+  description       String?
+  type              String    @db.VarChar(100)
+  currentStage      String    @default("stage_0") @map("current_stage") @db.VarChar(50)
+  status            String    @default("active") @db.VarChar(50)
+  budget            Decimal?  @db.Decimal(12, 2)
+  currency          String    @default("USD") @db.VarChar(3)
+  timelineStart     DateTime? @map("timeline_start") @db.Date
+  timelineEnd       DateTime? @map("timeline_end") @db.Date
+  actualStart       DateTime? @map("actual_start") @db.Date
+  actualEnd         DateTime? @map("actual_end") @db.Date
+  projectManagerId  String?   @map("project_manager_id") @db.Uuid
+  settings          Json      @default("{}")
+  metadata          Json      @default("{}")
+  createdBy         String?   @map("created_by") @db.Uuid
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt         DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relations
+  firm           Firm             @relation(fields: [firmId], references: [id])
+  client         Client           @relation(fields: [clientId], references: [id])
+  projectManager User?            @relation("ProjectManager", fields: [projectManagerId], references: [id])
+  creator        User?            @relation("CreatedProjects", fields: [createdBy], references: [id])
+  tasks          Task[]
+  milestones     Milestone[]
+  files          File[]
+  projectProducts ProjectProduct[]
+
+  @@map("projects")
+}
+
+model Task {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId           String    @map("project_id") @db.Uuid
+  parentTaskId        String?   @map("parent_task_id") @db.Uuid
+  title               String    @db.VarChar(255)
+  description         String?
+  stage               String?   @db.VarChar(50)
+  status              String    @default("pending") @db.VarChar(50)
+  priority            String    @default("medium") @db.VarChar(20)
+  dueDate             DateTime? @map("due_date") @db.Timestamptz(6)
+  startDate           DateTime? @map("start_date") @db.Timestamptz(6)
+  completedAt         DateTime? @map("completed_at") @db.Timestamptz(6)
+  estimatedHours      Decimal?  @map("estimated_hours") @db.Decimal(5, 2)
+  actualHours         Decimal   @default(0) @map("actual_hours") @db.Decimal(5, 2)
+  progressPercentage  Int       @default(0) @map("progress_percentage")
+  assigneeId          String?   @map("assignee_id") @db.Uuid
+  createdBy           String?   @map("created_by") @db.Uuid
+  tags                String[]
+  metadata            Json      @default("{}")
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relations
+  project            Project            @relation(fields: [projectId], references: [id])
+  parentTask         Task?              @relation("TaskHierarchy", fields: [parentTaskId], references: [id])
+  subtasks           Task[]             @relation("TaskHierarchy")
+  assignee           User?              @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  creator            User?              @relation("CreatedTasks", fields: [createdBy], references: [id])
+  files              File[]
+  predecessorDeps    TaskDependency[]   @relation("PredecessorTask")
+  successorDeps      TaskDependency[]   @relation("SuccessorTask")
+
+  @@map("tasks")
+}
+
+model TaskDependency {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  predecessorId  String   @map("predecessor_id") @db.Uuid
+  successorId    String   @map("successor_id") @db.Uuid
+  dependencyType String   @default("finish_to_start") @map("dependency_type") @db.VarChar(50)
+  lagHours       Int      @default(0) @map("lag_hours")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  predecessor Task @relation("PredecessorTask", fields: [predecessorId], references: [id])
+  successor   Task @relation("SuccessorTask", fields: [successorId], references: [id])
+
+  @@unique([predecessorId, successorId])
+  @@map("task_dependencies")
+}
+
+model Milestone {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId    String    @map("project_id") @db.Uuid
+  name         String    @db.VarChar(255)
+  description  String?
+  dueDate      DateTime? @map("due_date") @db.Date
+  completedAt  DateTime? @map("completed_at") @db.Timestamptz(6)
+  stage        String?   @db.VarChar(50)
+  isCritical   Boolean   @default(false) @map("is_critical")
+  deliverables String[]
+  createdBy    String?   @map("created_by") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id])
+  creator User?   @relation("CreatedMilestones", fields: [createdBy], references: [id])
+
+  @@map("milestones")
+}
+
+model Comment {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  entityType      String    @map("entity_type") @db.VarChar(50)
+  entityId        String    @map("entity_id") @db.Uuid
+  parentCommentId String?   @map("parent_comment_id") @db.Uuid
+  content         String
+  contentType     String    @default("text") @map("content_type") @db.VarChar(20)
+  mentions        String[]  @db.Uuid
+  attachments     Json      @default("[]")
+  createdBy       String    @map("created_by") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relations
+  creator       User      @relation(fields: [createdBy], references: [id])
+  parentComment Comment?  @relation("CommentThread", fields: [parentCommentId], references: [id])
+  replies       Comment[] @relation("CommentThread")
+
+  @@map("comments")
+}
+
+model File {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firmId          String    @map("firm_id") @db.Uuid
+  projectId       String?   @map("project_id") @db.Uuid
+  taskId          String?   @map("task_id") @db.Uuid
+  name            String    @db.VarChar(255)
+  originalName    String    @map("original_name") @db.VarChar(255)
+  fileType        String?   @map("file_type") @db.VarChar(100)
+  fileSize        BigInt?   @map("file_size")
+  mimeType        String?   @map("mime_type") @db.VarChar(255)
+  storageProvider String    @default("vercel_blob") @map("storage_provider") @db.VarChar(50)
+  storageUrl      String    @map("storage_url")
+  thumbnailUrl    String?   @map("thumbnail_url")
+  isPublic        Boolean   @default(false) @map("is_public")
+  uploadedBy      String?   @map("uploaded_by") @db.Uuid
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relations
+  firm     Firm     @relation(fields: [firmId], references: [id])
+  project  Project? @relation(fields: [projectId], references: [id])
+  task     Task?    @relation(fields: [taskId], references: [id])
+  uploader User?    @relation(fields: [uploadedBy], references: [id])
+
+  @@map("files")
+}
+
+// Supplier & Product Management Tables
+
+model Supplier {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firmId       String    @map("firm_id") @db.Uuid
+  name         String    @db.VarChar(255)
+  website      String?
+  contactEmail String?   @map("contact_email") @db.VarChar(255)
+  contactPhone String?   @map("contact_phone") @db.VarChar(50)
+  address      Json?
+  specialty    String?   @db.VarChar(255)
+  leadTimeDays Int?      @map("lead_time_days")
+  paymentTerms String?   @map("payment_terms") @db.VarChar(100)
+  notes        String?
+  rating       Decimal?  @db.Decimal(2, 1)
+  isPreferred  Boolean   @default(false) @map("is_preferred")
+  createdBy    String?   @map("created_by") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt    DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relations
+  firm     Firm      @relation(fields: [firmId], references: [id])
+  creator  User?     @relation("CreatedSuppliers", fields: [createdBy], references: [id])
+  products Product[]
+
+  @@map("suppliers")
+}
+
+model Product {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firmId             String    @map("firm_id") @db.Uuid
+  supplierId         String?   @map("supplier_id") @db.Uuid
+  name               String    @db.VarChar(255)
+  description        String?
+  sku                String?   @db.VarChar(100)
+  category           String?   @db.VarChar(100)
+  subcategory        String?   @db.VarChar(100)
+  price              Decimal?  @db.Decimal(10, 2)
+  currency           String    @default("USD") @db.VarChar(3)
+  dimensions         Json?
+  materials          String[]
+  colors             String[]
+  finishes           String[]
+  styles             String[]
+  sourceUrl          String?   @map("source_url")
+  images             Json      @default("[]")
+  specifications     Json      @default("{}")
+  availabilityStatus String    @default("available") @map("availability_status") @db.VarChar(50)
+  leadTimeWeeks      Int?      @map("lead_time_weeks")
+  minOrderQuantity   Int       @default(1) @map("min_order_quantity")
+  aiTags             String[]  @map("ai_tags")
+  aiColorPalette     Json?     @map("ai_color_palette")
+  createdBy          String?   @map("created_by") @db.Uuid
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt          DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  // Relations
+  firm            Firm             @relation(fields: [firmId], references: [id])
+  supplier        Supplier?        @relation(fields: [supplierId], references: [id])
+  creator         User?            @relation("CreatedProducts", fields: [createdBy], references: [id])
+  projectProducts ProjectProduct[]
+
+  @@map("products")
+}
+
+model ProjectProduct {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId    String    @map("project_id") @db.Uuid
+  productId    String    @map("product_id") @db.Uuid
+  quantity     Int       @default(1)
+  unitPrice    Decimal?  @map("unit_price") @db.Decimal(10, 2)
+  totalPrice   Decimal?  @map("total_price") @db.Decimal(10, 2)
+  status       String    @default("selected") @db.VarChar(50)
+  notes        String?
+  roomLocation String?   @map("room_location") @db.VarChar(255)
+  addedBy      String?   @map("added_by") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+  addedByUser User? @relation("AddedProjectProducts", fields: [addedBy], references: [id])
+
+  @@unique([projectId, productId])
+  @@map("project_products")
+}
+
+// Integration & System Tables
+
+model Integration {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firmId      String    @map("firm_id") @db.Uuid
+  serviceName String    @map("service_name") @db.VarChar(100)
+  serviceType String    @map("service_type") @db.VarChar(50)
+  isActive    Boolean   @default(true) @map("is_active")
+  credentials Json?
+  settings    Json      @default("{}")
+  lastSyncAt  DateTime? @map("last_sync_at") @db.Timestamptz(6)
+  syncStatus  String    @default("connected") @map("sync_status") @db.VarChar(50)
+  errorMessage String?  @map("error_message")
+  createdBy   String?   @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  firm    Firm  @relation(fields: [firmId], references: [id])
+  creator User? @relation("CreatedIntegrations", fields: [createdBy], references: [id])
+
+  @@map("integrations")
+}
+
+model ChatHistory {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  sessionId    String   @map("session_id") @db.Uuid
+  messageType  String   @map("message_type") @db.VarChar(20)
+  content      String
+  intent       String?  @db.VarChar(100)
+  entities     Json?
+  context      Json     @default("{}")
+  responseTimeMs Int?   @map("response_time_ms")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("chat_history")
+}
+
+model AuditLog {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tableName     String   @map("table_name") @db.VarChar(100)
+  recordId      String   @map("record_id") @db.Uuid
+  action        String   @db.VarChar(20)
+  oldValues     Json?    @map("old_values")
+  newValues     Json?    @map("new_values")
+  changedFields String[] @map("changed_fields")
+  userId        String?  @map("user_id") @db.Uuid
+  ipAddress     String?  @map("ip_address") @db.Inet
+  userAgent     String?  @map("user_agent")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}

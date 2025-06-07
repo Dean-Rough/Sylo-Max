@@ -1,4 +1,4 @@
-# Sylo-core API Routes Specification
+# Sylo-Max API Routes Specification
 
 ## Core Orchestrator API
 
@@ -29,7 +29,7 @@ Response: {
 // Example Usage
 POST /api/sylo-core
 {
-  "message": "Create a new interior design project for Sarah Johnson with a $50k budget",
+  "message": "Show me the dashboard overview",
   "userId": "user_123",
   "context": {
     "activeView": "dashboard"
@@ -39,756 +39,403 @@ POST /api/sylo-core
 Response:
 {
   "success": true,
-  "response": "I've created a new interior design project for Sarah Johnson with a $50,000 budget. The project is now in Stage 0 (Strategic Definition) and ready for initial briefing.",
+  "response": "Here's your dashboard overview with current stats and recent activity.",
   "actions": [
     {
-      "type": "create",
-      "entity": "project",
-      "id": "proj_456",
+      "type": "fetch",
+      "entity": "dashboard_stats",
       "data": {
-        "name": "Sarah Johnson Interior Design",
-        "clientId": "client_789",
-        "budget": 50000,
-        "type": "interior",
-        "currentStage": "stage_0"
+        "activeProjects": 12,
+        "tasksDue": 8,
+        "clientCount": 15,
+        "revenue": 125000
       }
     }
   ],
   "suggestions": [
-    "Schedule an initial client briefing meeting",
-    "Create project timeline and milestones",
-    "Set up mood board for concept development"
-  ],
-  "data": {
-    "projectId": "proj_456",
-    "nextSteps": ["client_briefing", "site_analysis", "requirements_gathering"]
-  }
+    "Review overdue tasks",
+    "Check project timelines",
+    "Schedule client meetings"
+  ]
 }
 ```
 
-## Project Management API
+## Dashboard API Endpoints
 
-### Projects Endpoint
+### Dashboard Stats
 
-**GET /api/projects**
+**GET /api/dashboard/stats**
 ```typescript
-// Query projects with filters
-Query Parameters:
-  stage?: 'stage_0' | 'stage_1' | 'stage_2' | 'stage_3' | 'stage_4' | 'stage_5' | 'stage_6' | 'stage_7'
-  status?: 'active' | 'completed' | 'on_hold' | 'cancelled'
-  type?: 'interior' | 'architecture' | 'branding' | 'web'
-  clientId?: string
-  limit?: number (default: 20)
-  offset?: number (default: 0)
-
-Response: {
-  projects: Project[];
-  total: number;
-  hasMore: boolean;
-}
-
-// Example
-GET /api/projects?stage=stage_2&status=active&limit=10
-
-Response:
-{
-  "projects": [
-    {
-      "id": "proj_123",
-      "name": "Modern Loft Renovation",
-      "client": {
-        "id": "client_456",
-        "name": "Jennifer Davis",
-        "company": "Davis Holdings"
-      },
-      "type": "interior",
-      "currentStage": "stage_2",
-      "budget": 75000,
-      "timelineStart": "2025-06-01",
-      "timelineEnd": "2025-09-30",
-      "progress": 35,
-      "team": ["user_789", "user_101"],
-      "createdAt": "2025-05-15T10:00:00Z"
-    }
-  ],
-  "total": 8,
-  "hasMore": false
-}
-```
-
-**POST /api/projects**
-```typescript
-// Create new project
-Request: {
-  clientId: string;
-  name: string;
-  type: 'interior' | 'architecture' | 'branding' | 'web';
-  budget?: number;
-  timelineStart?: string;      // ISO date
-  timelineEnd?: string;        // ISO date
-  description?: string;
-  templateId?: string;         // Use project template
-}
-
+// Get dashboard overview statistics
 Response: {
   success: boolean;
-  project: Project;
-  initialTasks?: Task[];       // Auto-generated from template
-}
-```
-
-**PUT /api/projects/[id]**
-```typescript
-// Update project
-Request: {
-  name?: string;
-  currentStage?: string;
-  status?: string;
-  budget?: number;
-  timelineStart?: string;
-  timelineEnd?: string;
-  description?: string;
-}
-
-Response: {
-  success: boolean;
-  project: Project;
-  changedFields: string[];
-}
-```
-
-### Advanced Project Endpoints
-
-**GET /api/projects/[id]/dashboard**
-```typescript
-// Project health dashboard
-Response: {
-  project: Project;
-  metrics: {
-    tasksCompleted: number;
-    tasksTotal: number;
-    budgetUsed: number;
-    budgetRemaining: number;
-    timelineProgress: number;
+  stats: {
+    activeProjects: number;
+    tasksDue: number;
+    clientCount: number;
+    revenue: number;
+    completedTasks: number;
     teamUtilization: number;
-    clientSatisfaction?: number;
   };
-  recentActivity: Activity[];
-  upcomingDeadlines: Task[];
-  riskIndicators: RiskAlert[];
+  trends: {
+    projectsChange: number;     // % change from last period
+    tasksChange: number;
+    revenueChange: number;
+  };
 }
 ```
 
-**GET /api/projects/[id]/kanban**
+**GET /api/dashboard/recent-projects**
 ```typescript
-// Kanban board data
+// Get recent projects with progress
 Query Parameters:
-  groupBy?: 'status' | 'assignee' | 'priority'
-  filterBy?: 'assignee' | 'dueDate' | 'stage'
-
-Response: {
-  columns: KanbanColumn[];
-  tasks: Task[];
-  totalTasks: number;
-}
-
-interface KanbanColumn {
-  id: string;
-  title: string;
-  status: string;
-  taskCount: number;
-  wipLimit?: number;
-}
-```
-
-**GET /api/projects/[id]/gantt**
-```typescript
-// Gantt chart data with dependencies
-Query Parameters:
-  startDate?: string           // ISO date
-  endDate?: string            // ISO date
-  includeSubtasks?: boolean
-
-Response: {
-  tasks: GanttTask[];
-  dependencies: TaskDependency[];
-  milestones: Milestone[];
-  criticalPath: string[];      // Task IDs on critical path
-  timeline: {
-    start: string;
-    end: string;
-    duration: number;           // Days
-  };
-}
-
-interface GanttTask {
-  id: string;
-  title: string;
-  startDate: string;
-  endDate: string;
-  duration: number;
-  progress: number;
-  assignee: User;
-  dependencies: string[];
-  isCritical: boolean;
-}
-```
-
-## Task Management API
-
-### Tasks Endpoint
-
-**GET /api/tasks**
-```typescript
-// Query tasks with advanced filtering
-Query Parameters:
-  projectId?: string
-  assignee?: string
-  status?: 'pending' | 'in_progress' | 'client_review' | 'complete' | 'blocked'
-  priority?: 'low' | 'medium' | 'high' | 'urgent'
-  stage?: string
-  dueBefore?: string          // ISO date
-  dueAfter?: string           // ISO date
-  search?: string             // Full-text search
-  limit?: number
-  offset?: number
-
-Response: {
-  tasks: Task[];
-  total: number;
-  hasMore: boolean;
-  aggregations: {
-    byStatus: Record<string, number>;
-    byPriority: Record<string, number>;
-    byAssignee: Record<string, number>;
-  };
-}
-```
-
-**POST /api/tasks**
-```typescript
-// Create new task
-Request: {
-  projectId: string;
-  title: string;
-  description?: string;
-  assigneeId?: string;
-  dueDate?: string;           // ISO date
-  startDate?: string;         // ISO date
-  estimatedHours?: number;
-  priority?: 'low' | 'medium' | 'high' | 'urgent';
-  stage?: string;
-  parentTaskId?: string;      // For subtasks
-  dependencies?: string[];    // Task IDs this depends on
-  tags?: string[];
-}
+  limit?: number (default: 5)
 
 Response: {
   success: boolean;
-  task: Task;
-  generatedSubtasks?: Task[]; // Auto-generated based on task type
-}
-```
-
-**PUT /api/tasks/[id]**
-```typescript
-// Update task
-Request: {
-  title?: string;
-  description?: string;
-  status?: string;
-  priority?: string;
-  assigneeId?: string;
-  dueDate?: string;
-  estimatedHours?: number;
-  actualHours?: number;
-  progress?: number;          // 0-100
-}
-
-Response: {
-  success: boolean;
-  task: Task;
-  notifications: Notification[]; // Auto-generated notifications
-}
-```
-
-**POST /api/tasks/[id]/comments**
-```typescript
-// Add comment to task
-Request: {
-  content: string;
-  mentions?: string[];        // User IDs to mention
-  attachments?: FileUpload[];
-}
-
-Response: {
-  success: boolean;
-  comment: TaskComment;
-  notifications: Notification[];
-}
-```
-
-**GET /api/tasks/[id]/dependencies**
-```typescript
-// Get task dependencies and impact analysis
-Response: {
-  predecessors: TaskDependency[];
-  successors: TaskDependency[];
-  impactAnalysis: {
-    affectedTasks: string[];
-    scheduleImpact: number;    // Days
-    budgetImpact: number;
-  };
-}
-```
-
-## Supplier & Product Management API
-
-### Suppliers Endpoint
-
-**GET /api/suppliers**
-```typescript
-// List suppliers with filtering
-Query Parameters:
-  search?: string
-  category?: string
-  location?: string
-  rating?: number             // Minimum rating
-  hasTradeAccount?: boolean
-  isActive?: boolean
-  limit?: number
-  offset?: number
-
-Response: {
-  suppliers: Supplier[];
-  total: number;
-  hasMore: boolean;
-}
-```
-
-**POST /api/suppliers**
-```typescript
-// Add new supplier
-Request: {
-  name: string;
-  website?: string;
-  contactEmail?: string;
-  contactPhone?: string;
-  address?: string;
-  tradeAccountInfo?: {
-    accountNumber?: string;
-    discountRate?: number;
-    paymentTerms?: string;
-  };
-  notes?: string;
-}
-
-Response: {
-  success: boolean;
-  supplier: Supplier;
-}
-```
-
-### Products Endpoint
-
-**GET /api/products**
-```typescript
-// Search products with advanced filtering
-Query Parameters:
-  search?: string             // Full-text search
-  categoryId?: string
-  supplierId?: string
-  minPrice?: number
-  maxPrice?: number
-  colors?: string[]           // Hex color codes
-  materials?: string[]
-  styles?: string[]
-  availability?: 'available' | 'discontinued' | 'custom_order'
-  tags?: string[]
-  sortBy?: 'price' | 'name' | 'rating' | 'leadTime'
-  sortOrder?: 'asc' | 'desc'
-  limit?: number
-  offset?: number
-
-Response: {
-  products: Product[];
-  total: number;
-  hasMore: boolean;
-  facets: {
-    categories: CategoryCount[];
-    suppliers: SupplierCount[];
-    priceRanges: PriceRange[];
-    colors: ColorCount[];
-    materials: MaterialCount[];
-  };
-}
-```
-
-**POST /api/products**
-```typescript
-// Add product (manual or via URL import)
-Request: {
-  sourceUrl?: string;         // Auto-import from URL
-  supplierId: string;
-  categoryId: string;
-  name: string;
-  modelNumber?: string;
-  description?: string;
-  price?: number;
-  currency?: string;
-  dimensions?: {
-    width?: number;
-    height?: number;
-    depth?: number;
-    weight?: number;
-  };
-  specifications?: Record<string, any>;
-  images?: string[];          // Image URLs
-  tags?: string[];
-  colors?: string[];          // Hex codes
-}
-
-Response: {
-  success: boolean;
-  product: Product;
-  extractedData?: {           // If imported from URL
-    autoTags: string[];
-    extractedColors: string[];
-    suggestedCategory: string;
-  };
-}
-```
-
-**POST /api/products/import-url**
-```typescript
-// Import product from URL using AI extraction
-Request: {
-  url: string;
-  autoDetectSupplier?: boolean;
-  autoDetectCategory?: boolean;
-}
-
-Response: {
-  success: boolean;
-  extractedData: {
+  projects: Array<{
+    id: string;
     name: string;
+    client: string;
+    progress: number;
+    status: string;
+    dueDate: string;
+    priority: 'low' | 'medium' | 'high' | 'urgent';
+  }>;
+}
+```
+
+**GET /api/dashboard/tasks-due**
+```typescript
+// Get upcoming tasks and deadlines
+Query Parameters:
+  days?: number (default: 7)   // Look ahead days
+
+Response: {
+  success: boolean;
+  tasks: Array<{
+    id: string;
+    title: string;
+    project: string;
+    dueDate: string;
+    priority: string;
+    assignee: string;
+    status: string;
+  }>;
+  overdue: number;             // Count of overdue tasks
+}
+```
+
+## Chat Interface API
+
+### Chat Messages
+
+**POST /api/chat/send**
+```typescript
+// Send message to AI assistant
+Request: {
+  message: string;
+  sessionId?: string;          // Chat session ID
+  context?: {
+    currentPage?: string;
+    selectedProject?: string;
+    recentActions?: string[];
+  };
+}
+
+Response: {
+  success: boolean;
+  reply: string;
+  sessionId: string;
+  timestamp: string;
+  suggestions?: string[];      // Quick action suggestions
+  actions?: Array<{           // Triggered actions
+    type: string;
     description: string;
-    price?: number;
-    images: string[];
-    specifications: Record<string, any>;
-    suggestedSupplier?: Supplier;
-    suggestedCategory?: ProductCategory;
-    extractedColors: ColorExtraction[];
-    autoTags: string[];
-    confidence: number;        // 0.0 - 1.0
-  };
-  requiresReview: string[];    // Fields needing manual review
+    result?: any;
+  }>;
 }
 ```
 
-## Team & Collaboration API
-
-### Users & Teams
-
-**GET /api/users**
+**GET /api/chat/history**
 ```typescript
-// List team members
+// Get chat history for session
 Query Parameters:
-  role?: string
-  skills?: string[]
-  availability?: boolean
-  projectId?: string
+  sessionId: string
+  limit?: number (default: 50)
 
 Response: {
-  users: User[];
-  total: number;
+  success: boolean;
+  messages: Array<{
+    id: string;
+    type: 'user' | 'assistant';
+    content: string;
+    timestamp: string;
+    actions?: any[];
+  }>;
 }
 ```
 
-**GET /api/users/workload**
+**POST /api/chat/feedback**
 ```typescript
-// Team workload analysis
-Query Parameters:
-  startDate: string
-  endDate: string
-  userId?: string
-
-Response: {
-  workloadData: UserWorkload[];
-  totalCapacity: number;
-  totalAllocated: number;
-  utilizationRate: number;
-  alerts: WorkloadAlert[];
-}
-
-interface UserWorkload {
-  userId: string;
-  user: User;
-  totalHours: number;
-  allocatedHours: number;
-  availableHours: number;
-  utilizationRate: number;
-  projects: ProjectAllocation[];
-  overtimeRisk: boolean;
-}
-```
-
-**POST /api/time-entries**
-```typescript
-// Log time entry
+// Provide feedback on AI response
 Request: {
-  userId: string;
-  taskId?: string;
-  projectId: string;
-  hours: number;
-  date: string;              // ISO date
-  description?: string;
-  billable?: boolean;
-  entryMethod?: 'manual' | 'chat_auto' | 'timer';
+  messageId: string;
+  feedback: 'helpful' | 'not_helpful';
+  comment?: string;
 }
 
 Response: {
   success: boolean;
-  timeEntry: TimeEntry;
-  projectUpdate: {
-    totalHours: number;
-    budgetUsed: number;
-    progressUpdate: number;
+  acknowledged: boolean;
+}
+```
+
+## Theme and Preferences API
+
+### User Preferences
+
+**GET /api/preferences**
+```typescript
+// Get user preferences
+Response: {
+  success: boolean;
+  preferences: {
+    theme: 'light' | 'dark' | 'system';
+    sidebarCollapsed: boolean;
+    dashboardLayout: string;
+    notifications: {
+      email: boolean;
+      push: boolean;
+      taskReminders: boolean;
+      projectUpdates: boolean;
+    };
+    timezone: string;
+    dateFormat: string;
   };
 }
 ```
 
-## External Integrations API
-
-### Google Calendar Integration
-
-**POST /api/integrations/google/events**
+**PUT /api/preferences**
 ```typescript
-// Create calendar event
+// Update user preferences
 Request: {
-  title: string;
-  description?: string;
-  startTime: string;         // ISO datetime
-  endTime: string;           // ISO datetime
-  attendees?: string[];      // Email addresses
-  location?: string;
-  projectId?: string;        // Link to project
-  taskId?: string;           // Link to task
+  theme?: 'light' | 'dark' | 'system';
+  sidebarCollapsed?: boolean;
+  dashboardLayout?: string;
+  notifications?: {
+    email?: boolean;
+    push?: boolean;
+    taskReminders?: boolean;
+    projectUpdates?: boolean;
+  };
+  timezone?: string;
+  dateFormat?: string;
 }
 
 Response: {
   success: boolean;
-  event: CalendarEvent;
-  meetingLink?: string;      // If video conference
+  preferences: UserPreferences;
 }
 ```
 
-**GET /api/integrations/google/availability**
+## Navigation and Search API
+
+### Global Search
+
+**GET /api/search**
 ```typescript
-// Check team availability
+// Global search across all entities
 Query Parameters:
-  userIds: string[]
-  startTime: string
-  endTime: string
-  duration: number           // Minutes
-
-Response: {
-  availability: UserAvailability[];
-  suggestedTimes: TimeSlot[];
-}
-```
-
-### Xero Financial Integration
-
-**POST /api/integrations/xero/invoices**
-```typescript
-// Create invoice in Xero
-Request: {
-  projectId: string;
-  contactId?: string;        // Xero contact ID
-  lineItems: InvoiceLineItem[];
-  dueDate?: string;
-  reference?: string;
-}
+  q: string                    // Search query
+  type?: 'projects' | 'tasks' | 'clients' | 'files' | 'all'
+  limit?: number (default: 10)
 
 Response: {
   success: boolean;
-  invoice: XeroInvoice;
-  syloInvoiceId: string;
+  results: Array<{
+    id: string;
+    type: string;
+    title: string;
+    description?: string;
+    url: string;               // Navigation URL
+    relevance: number;         // 0-1 relevance score
+    context?: string;          // Matching context
+  }>;
+  suggestions?: string[];      // Search suggestions
 }
 ```
 
-**GET /api/integrations/xero/contacts**
+### Quick Actions
+
+**GET /api/quick-actions**
 ```typescript
-// Sync contacts from Xero
+// Get available quick actions for user
 Response: {
-  contacts: XeroContact[];
-  syncedAt: string;
-  newContacts: number;
-  updatedContacts: number;
+  success: boolean;
+  actions: Array<{
+    id: string;
+    label: string;
+    description: string;
+    icon: string;
+    url?: string;              // Navigation URL
+    action?: string;           // API action
+    keyboard?: string;         // Keyboard shortcut
+  }>;
 }
 ```
 
-## AI & Media Generation API
+## Horizon UI Specific Endpoints
 
-### Content Generation
+### Component Data
 
-**POST /api/ai/generate-content**
+**GET /api/components/sidebar-nav**
 ```typescript
-// Generate social media content
-Request: {
-  projectId: string;
-  contentType: 'social_post' | 'project_update' | 'client_report';
-  platforms?: ('instagram' | 'linkedin' | 'tiktok')[];
-  mediaUrls?: string[];      // Project images
-  tone?: 'professional' | 'casual' | 'creative';
-  includeHashtags?: boolean;
+// Get navigation menu items
+Response: {
+  success: boolean;
+  menuItems: Array<{
+    id: string;
+    label: string;
+    icon: string;
+    url: string;
+    badge?: {
+      count: number;
+      color: string;
+    };
+    children?: NavItem[];
+  }>;
+  userInfo: {
+    name: string;
+    email: string;
+    avatar?: string;
+    status: 'online' | 'away' | 'busy';
+  };
 }
+```
+
+**GET /api/components/breadcrumbs**
+```typescript
+// Get breadcrumb navigation
+Query Parameters:
+  path: string                 // Current page path
 
 Response: {
   success: boolean;
-  content: GeneratedContent[];
-  suggestedSchedule?: ScheduleSuggestion[];
-}
-
-interface GeneratedContent {
-  platform: string;
-  caption: string;
-  hashtags: string[];
-  mediaRecommendations: string[];
-  engagementPrediction: number;
-}
-```
-
-**POST /api/ai/video-generation**
-```typescript
-// Generate video content from images
-Request: {
-  images: string[];          // URLs to source images
-  style: 'modern' | 'traditional' | 'minimalist' | 'luxury';
-  duration: number;          // Seconds
-  provider?: 'wan2_1' | 'runway' | 'auto';
-  outputQuality?: '480p' | '720p' | '1080p';
-}
-
-Response: {
-  success: boolean;
-  jobId: string;
-  estimatedCompletionTime: number; // Minutes
-  provider: string;
-  cost?: number;
-}
-```
-
-**GET /api/ai/video-generation/[jobId]**
-```typescript
-// Check video generation status
-Response: {
-  status: 'queued' | 'processing' | 'completed' | 'failed';
-  progress: number;          // 0-100
-  videoUrl?: string;         // When completed
-  thumbnailUrl?: string;
-  error?: string;
-}
-```
-
-## File Management API
-
-**POST /api/files/upload**
-```typescript
-// Upload project files
-Request: FormData {
-  file: File;
-  projectId: string;
-  category?: 'mood_board' | 'specification' | 'client_asset' | 'deliverable';
-  description?: string;
-}
-
-Response: {
-  success: boolean;
-  file: ProjectFile;
-  autoDetectedCategory?: string;
-  extractedMetadata?: FileMetadata;
-}
-```
-
-**POST /api/files/categorize**
-```typescript
-// AI-powered file categorization
-Request: {
-  fileUrl: string;
-  projectId: string;
-  autoDetectType: boolean;
-}
-
-Response: {
-  success: boolean;
-  suggestedCategory: string;
-  confidence: number;
-  extractedText?: string;    // For PDFs/documents
-  detectedColors?: string[]; // For images
-  tags: string[];
+  breadcrumbs: Array<{
+    label: string;
+    url?: string;
+    isActive: boolean;
+  }>;
 }
 ```
 
 ## Error Handling
 
-### Standard Error Responses
-
-All API endpoints return consistent error formats:
+### Standard Error Response
 
 ```typescript
-interface ErrorResponse {
+interface ApiError {
   success: false;
   error: {
     code: string;
     message: string;
     details?: any;
     timestamp: string;
-    requestId: string;
   };
-  suggestions?: string[];     // Recovery suggestions
+  suggestions?: string[];
 }
 
 // Common Error Codes
-'VALIDATION_ERROR'          // 400 - Invalid input data
-'UNAUTHORIZED'              // 401 - Authentication required
-'FORBIDDEN'                 // 403 - Insufficient permissions
-'NOT_FOUND'                 // 404 - Resource not found
-'CONFLICT'                  // 409 - Resource conflict
-'RATE_LIMITED'              // 429 - Too many requests
-'INTEGRATION_ERROR'         // 500 - External service failure
-'AI_PROCESSING_ERROR'       // 500 - AI service failure
-'DATABASE_ERROR'            // 500 - Database operation failure
-```
-
-### Rate Limiting
-
-```typescript
-// Rate Limit Headers (included in all responses)
-'X-RateLimit-Limit': '100'           // Requests per window
-'X-RateLimit-Remaining': '95'        // Remaining requests
-'X-RateLimit-Reset': '1640995200'    // Reset timestamp
-'X-RateLimit-Window': '3600'         // Window size in seconds
+'VALIDATION_ERROR'    // 400 - Invalid request data
+'UNAUTHORIZED'        // 401 - Authentication required
+'FORBIDDEN'          // 403 - Access denied
+'NOT_FOUND'          // 404 - Resource not found
+'RATE_LIMITED'       // 429 - Too many requests
+'SERVER_ERROR'       // 500 - Internal server error
 ```
 
 ## Authentication
 
-All API endpoints require authentication via:
-- **Bearer Token**: `Authorization: Bearer <jwt_token>`
-- **API Key** (for integrations): `X-API-Key: <api_key>`
+All API routes require authentication via JWT tokens:
 
-### Token Refresh
 ```typescript
-POST /api/auth/refresh
-{
-  "refreshToken": "refresh_token_here"
-}
-
-Response:
-{
-  "accessToken": "new_jwt_token",
-  "expiresIn": 3600,
-  "refreshToken": "new_refresh_token"
+Headers: {
+  'Authorization': 'Bearer <jwt_token>',
+  'Content-Type': 'application/json'
 }
 ```
+
+### Token Refresh
+
+**POST /api/auth/refresh**
+```typescript
+Request: {
+  refreshToken: string;
+}
+
+Response: {
+  success: boolean;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+```
+
+## WebSocket Events
+
+### Real-time Updates
+
+**Connection:** `wss://your-domain.com/api/ws`
+
+```typescript
+// Client sends
+{
+  type: 'subscribe',
+  channels: ['dashboard', 'chat', 'notifications']
+}
+
+// Server sends
+{
+  type: 'dashboard_update',
+  data: {
+    stats: UpdatedStats,
+    timestamp: string
+  }
+}
+
+{
+  type: 'chat_message',
+  data: {
+    message: ChatMessage,
+    sessionId: string
+  }
+}
+
+{
+  type: 'notification',
+  data: {
+    id: string,
+    title: string,
+    message: string,
+    type: 'info' | 'success' | 'warning' | 'error',
+    timestamp: string
+  }
+}
+```
+
+## Rate Limiting
+
+- **General API**: 100 requests per minute per user
+- **Chat API**: 20 messages per minute per user  
+- **Search API**: 30 requests per minute per user
+- **File Upload**: 10 uploads per minute per user
+
+Rate limit headers included in responses:
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640995200
+```
+
+This API specification covers the current Horizon UI dashboard implementation with proper endpoints for all dashboard functionality, chat interface, and theme management.

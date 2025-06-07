@@ -4,6 +4,8 @@
 
 ### Required Environment Variables
 
+**Note:** The `.env.local` file contains all required keys and is already configured for NeonDB, but is hidden from the repository due to `.gitignore` for security purposes.
+
 Create a `.env.local` file in your project root with the following variables:
 
 ```bash
