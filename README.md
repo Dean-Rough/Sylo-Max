@@ -1,56 +1,49 @@
 # Sylo-Max - AI-Powered Design Studio Management Platform
 
-> Conversational project management for design studios, powered by AI
+> **Next.js 14 + TypeScript + AI** | Conversational project management for design studios, powered by OpenAI GPT-4
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
-[![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)](https://vercel.com)
+[![Next.js](https://img.shields.io/badge/Next.js-14.2.4-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5.2-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18.3.1-blue?logo=react&logoColor=white)](https://reactjs.org/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel&logoColor=white)](https://vercel.com)
+[![OpenAI](https://img.shields.io/badge/AI-OpenAI%20GPT--4-green?logo=openai&logoColor=white)](https://openai.com/)
 
 ## 🎯 Overview
 
-Sylo-Max is the next-generation conversational project management platform specifically designed for design studios. Unlike generic PM tools, Sylo understands the creative process from initial client briefing through final delivery and post-project marketing.
+Sylo-Max is the next-generation conversational project management platform specifically designed for design studios. Built with **Next.js 14**, **TypeScript**, and **OpenAI GPT-4**, it understands the creative process from initial client briefing through final delivery and post-project marketing.
 
-### ✨ Key Features
+## 🚀 Tech Stack
 
-- **🤖 AI-Powered Conversations**: Natural language project management with GPT-4 integration
-- **🎨 Design-Specific Workflows**: Built-in RIBA Plan of Work 2020 and creative project phases
-- **📋 Intelligent Task Orchestration**: AI-driven task prioritization and dependency management
-- **🛍️ Smart Product Catalog**: AI-powered product discovery with visual browsing
-- **👥 Real-Time Collaboration**: Live cursors, @mentions, and team coordination
-- **🎬 Integrated Video Generation**: Multi-provider video content creation for marketing
-- **🔗 Enterprise Integrations**: Google Calendar, Xero, social media platforms
+**Frontend Framework:**
+- ⚡ **Next.js 14.2.4** - React framework with App Router
+- 🔷 **TypeScript 5.5.2** - Type-safe development
+- ⚛️ **React 18.3.1** - UI library with hooks and context
 
-## 🚀 Quick Start
+**Styling & UI:**
+- 🎨 **TailwindCSS 3.4.4** - Utility-first CSS framework
+- 🧩 **Shadcn UI** - Headless UI components with Radix
+- 🎭 **Framer Motion** - Animation library
+- 🌙 **Next Themes** - Dark/light mode support
 
-### Prerequisites
-- Node.js 18+
-- PostgreSQL (or NeonDB account)
-- OpenAI API key
+**Backend & Database:**
+- 🗄️ **NeonDB** - Serverless PostgreSQL
+- 🔗 **Prisma ORM** - Type-safe database client
+- 🔐 **NextAuth.js** - Authentication
+- 📡 **Supabase** - Real-time subscriptions
 
-### Installation
+**AI & Integrations:**
+- 🤖 **OpenAI GPT-4** - Conversational AI with function calling
+- 📅 **Google Calendar API** - Schedule integration
+- 💰 **Xero API** - Accounting integration
+- 🎬 **RunwayML** - Video generation
+- 📱 **Social Media APIs** - Content distribution
 
-```bash
-# Clone the repository
-git clone git@github.com:Dean-Rough/Sylo-Max.git
-cd Sylo-Max
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env.local
-# Edit .env.local with your API keys
-
-# Initialize database
-npx prisma generate
-npx prisma db push
-
-# Start development server
-npm run dev
-```
-
-Visit `http://localhost:3000` to see Sylo-Max in action!
+**Development Tools:**
+- 📦 **ESLint + Prettier** - Code quality
+- 🧪 **Jest** - Testing framework
+- 📊 **React Query** - Data fetching
+- 🛡️ **Zod** - Schema validation
 
 ## 📁 Project Structure
 
