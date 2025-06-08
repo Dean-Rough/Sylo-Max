@@ -2,21 +2,42 @@
 
 ## Product Overview
 
-Sylo-Max is a comprehensive AI-powered project management dashboard specifically built for design studios including interior design, architecture, branding, and creative agencies. Built with Horizon UI design principles, it provides a professional, modern interface for managing creative workflows from initial client briefing through to final delivery.
+Sylo-Max is a comprehensive AI-powered project management dashboard specifically built for design studios including interior design, architecture, branding, and creative agencies. Built with modern UI components including Horizon UI and Chakra UI, it provides a professional, modern interface for managing creative workflows from initial client briefing through to final delivery.
+
+## Recent Updates (June 2025)
+
+### UI Component Integration
+- **Horizon UI Components**: Successfully installed and integrated `@horizon-ui-brijesh/horizon` for enhanced UI elements
+- **Chakra UI Foundation**: Added Chakra UI (`@chakra-ui/react`) as the component foundation
+- **TypeScript Fixes**: Resolved all compilation errors for production-ready deployment
+- **Enhanced Styling**: Improved component styling with modern design patterns
+
+### Technical Improvements
+- **API Error Handling**: Fixed TypeScript errors in API response formatting
+- **Database Types**: Updated User interface to handle nullable fields correctly
+- **Build Optimization**: Lazy-loaded OpenAI client to prevent build-time failures
+- **Environment Configuration**: Enhanced environment variable handling for development and production
 
 ## Key Features
 
-- **AI-Powered Dashboard**: Modern Horizon UI-styled interface with real-time AI chat assistance
+- **AI-Powered Dashboard**: Modern UI-styled interface with real-time AI chat assistance
 - **Natural Language Project Management**: Create, update, and manage clients, projects, tasks, and schedules using conversational AI
 - **Design-Specific Workflows**: Built-in understanding of creative project phases and milestones
 - **Real-time Chat Interface**: Always-accessible AI assistant for instant project guidance
-- **Professional UI Components**: Horizon UI design system with navy color scheme and gradient accents
+- **Professional UI Components**: Horizon UI and Chakra UI design system with navy color scheme and gradient accents
 - **Dark/Light Theme Support**: Seamless theme switching with consistent styling
 - **Responsive Design**: Mobile-first approach with optimized layouts for all screen sizes
 
 ## Design System & UI
 
-### Horizon UI Integration
+### UI Component Stack
+- **Horizon UI Components**: Professional React components from `@horizon-ui-brijesh/horizon`
+- **Chakra UI Foundation**: Core component library with `@chakra-ui/react`, `@emotion/react`, and `@emotion/styled`
+- **Framer Motion**: Smooth animations and transitions
+- **Radix UI Primitives**: Accessible component primitives for complex interactions
+- **Shadcn/ui Components**: Custom-styled components built on Radix primitives
+
+### Design Tokens
 - **Color Palette**: Navy-based color scheme (navy-50 through navy-900) with blue gradient accents
 - **Typography**: Poppins font family with proper weight hierarchy
 - **Components**: Card-based layout with shadow system and backdrop blur effects
@@ -76,9 +97,26 @@ cp .env.example .env.local
 npx prisma generate
 npx prisma db push
 
-# Start development server
+# Start development server (automatically kills any process on port 3971)
 npm run dev
+
+# Alternative: Start on default Next.js port (3000)
+npm run dev:default
+
+# Manually kill process on port 3971 if needed
+npm run kill-port
 ```
+
+### Development Server
+
+The development server runs on **port 3971** by default. The `npm run dev` command automatically:
+1. Kills any existing process on port 3971
+2. Starts the Next.js development server on port 3971
+
+Available scripts:
+- `npm run dev` - Start server on port 3971 (with automatic port cleanup)
+- `npm run dev:default` - Start server on default port 3000
+- `npm run kill-port` - Manually kill any process running on port 3971
 
 ### Environment Variables
 
@@ -98,7 +136,7 @@ OPENAI_API_KEY="sk-..."
 
 # App Configuration
 NEXTAUTH_SECRET="..."
-NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_URL="http://localhost:3971"  # Updated to use port 3971
 ```
 
 ## Project Structure

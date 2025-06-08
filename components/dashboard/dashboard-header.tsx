@@ -1,76 +1,109 @@
 "use client"
 
-import { Search, Bell, Settings, User, Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import {
+  Bell,
+  Search,
+  Plus,
+  Menu,
+  MessageSquare,
+  Settings,
+  User,
+  Moon,
+  Sun,
+} from "lucide-react"
+import { useTheme } from "next-themes"
 
 export function DashboardHeader() {
   const { theme, setTheme } = useTheme()
+  const [notifications] = useState(3) // Mock notification count
 
   return (
-    <div className="relative flex h-[61px] w-full items-center justify-between rounded-xl bg-white/10 p-2 backdrop-blur-xl dark:bg-[#0b14374d]">
-      {/* Left side - Breadcrumb/Page title */}
-      <div className="ml-[6px]">
-        <div className="h-6 w-[224px] pt-1">
-          <a className="text-sm font-normal text-navy-700 hover:underline dark:text-white dark:hover:text-white" href="#">
-            Pages
-            <span className="mx-1 text-sm text-navy-700 hover:text-navy-700 dark:text-white"> / </span>
-          </a>
-          <span className="text-sm font-normal text-navy-700 hover:underline dark:text-white dark:hover:text-white">
-            Main Dashboard
-          </span>
-        </div>
-        <p className="shrink text-[33px] capitalize text-navy-700 dark:text-white">
-          <span className="font-medium">Main Dashboard</span>
-        </p>
-      </div>
+    <header className="border-b border-gray-200 bg-white dark:border-navy-700 dark:bg-navy-800">
+      <div className="flex h-16 w-full items-center justify-between px-6">
+        {/* Left Section */}
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" size="sm" className="md:hidden">
+            <Menu className="h-5 w-5" />
+          </Button>
 
-      {/* Right side - Search and controls */}
-      <div className="relative mt-[3px] flex h-[61px] w-[355px] flex-grow items-center justify-around gap-2 rounded-full bg-white px-2 py-2 shadow-xl shadow-shadow-500 dark:!bg-navy-800 dark:shadow-none md:w-[365px] md:flex-grow-0 md:gap-1 xl:w-[365px] xl:gap-2">
-        {/* Search */}
-        <div className="flex h-full items-center rounded-full bg-lightPrimary text-navy-700 dark:bg-navy-900 dark:text-white xl:w-[225px]">
-          <p className="pl-3 pr-2 text-xl">
-            <Search className="h-4 w-4 text-gray-400 dark:text-white" />
-          </p>
-          <input
-            type="text"
-            placeholder="Search..."
-            className="block h-full w-full rounded-full bg-lightPrimary text-sm font-medium text-navy-700 outline-none placeholder:!text-gray-400 dark:bg-navy-900 dark:text-white dark:placeholder:!text-white sm:w-fit"
-          />
+          <div className="flex items-center space-x-2">
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Dashboard
+            </h1>
+            <Badge variant="secondary" className="ml-2">
+              Free Plan
+            </Badge>
+          </div>
         </div>
 
-        {/* Theme Toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="flex h-[52px] w-[52px] items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 dark:border-navy-700 dark:bg-navy-800 dark:text-white"
-        >
-          {theme === "dark" ? (
-            <Sun className="h-4 w-4" />
-          ) : (
-            <Moon className="h-4 w-4" />
-          )}
-        </Button>
+        {/* Center - Search */}
+        <div className="hidden max-w-lg flex-1 flex-col md:flex md:flex-row">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 transform h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search projects, clients, tasks..."
+              className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-navy-600 dark:bg-navy-700 dark:text-white"
+            />
+          </div>
+        </div>
 
-        {/* Notifications */}
-        <Button
-          variant="ghost"
-          size="icon" 
-          className="flex h-[52px] w-[52px] items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 dark:border-navy-700 dark:bg-navy-800 dark:text-white"
-        >
-          <Bell className="h-4 w-4" />
-        </Button>
+        {/* Right Section */}
+        <div className="flex items-center space-x-3">
+          {/* Quick Actions */}
+          <Button variant="outline" size="sm" className="hidden sm:flex">
+            <Plus className="mr-2 h-4 w-4" />
+            New Project
+          </Button>
 
-        {/* Profile */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="flex h-[52px] w-[52px] items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 dark:border-navy-700 dark:bg-navy-800 dark:text-white"
-        >
-          <User className="h-4 w-4" />
-        </Button>
+          {/* Chat Toggle */}
+          <Button variant="ghost" size="sm" className="relative lg:hidden">
+            <MessageSquare className="h-5 w-5" />
+          </Button>
+
+          {/* Notifications */}
+          <Button variant="ghost" size="sm" className="relative">
+            <Bell className="h-5 w-5" />
+            {notifications > 0 && (
+              <Badge
+                variant="destructive"
+                className="absolute -top-1 -right-1 flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full p-0 text-xs"
+              >
+                {notifications}
+              </Badge>
+            )}
+          </Button>
+
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="flex h-[52px] w-[52px] items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </Button>
+
+          {/* Settings */}
+          <Button variant="ghost" size="sm">
+            <Settings className="h-5 w-5" />
+          </Button>
+
+          {/* User Menu */}
+          <Button variant="ghost" size="sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500">
+              <User className="h-4 w-4 text-white" />
+            </div>
+          </Button>
+        </div>
       </div>
-    </div>
+    </header>
   )
 }

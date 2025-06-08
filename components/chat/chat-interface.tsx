@@ -1,175 +1,278 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { Send, Bot, User, Sparkles } from "lucide-react"
+import { useState, useRef, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { 
+  Send, 
+  Loader2, 
+  Bot, 
+  User, 
+  Sparkles,
+  CheckCircle,
+  AlertCircle,
+  Info
+} from "lucide-react"
 
-type Message = {
+interface ChatMessage {
   id: string
   type: 'user' | 'assistant' | 'system'
   content: string
-  timestamp: Date
+  timestamp: string
+  actions?: ChatAction[]
 }
 
-export function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([
+interface ChatAction {
+  type: string
+  description: string
+  data?: any
+}
+
+interface ChatInterfaceProps {
+  className?: string
+  sessionId?: string
+}
+
+export function ChatInterface({ className, sessionId }: ChatInterfaceProps) {
+  const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
-      type: 'system',
-      content: 'Welcome to Sylo-Max! I\'m your AI assistant for design studio management. Ask me to create projects, manage tasks, or help with your workflow.',
-      timestamp: new Date()
+      type: 'assistant',
+      content: "Hi! I'm your AI assistant for Sylo-Max. I can help you create projects, manage tasks, schedule meetings, and navigate your design studio workflow. What would you like to do today?",
+      timestamp: new Date().toISOString()
     }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [suggestions, setSuggestions] = useState([
+    "Show me today's tasks",
+    "Create a new project",
+    "Schedule a client meeting",
+    "What's the status of my projects?"
+  ])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+  useEffect(scrollToBottom, [messages])
 
-  const handleSend = async () => {
-    if (!input.trim()) return
+  const handleSendMessage = async () => {
+    if (!input.trim() || isLoading) return
 
-    const userMessage: Message = {
+    const userMessage: ChatMessage = {
       id: Date.now().toString(),
       type: 'user',
       content: input,
-      timestamp: new Date()
+      timestamp: new Date().toISOString()
     }
 
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
 
-    // Simulate AI response - replace with actual API call
-    setTimeout(() => {
-      const assistantMessage: Message = {
+    try {
+      const response = await fetch('/api/sylo-core', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: input,
+          context: {
+            sessionId: sessionId || `session_${Date.now()}`,
+            timestamp: new Date().toISOString()
+          }
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        
+        const assistantMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          type: 'assistant',
+          content: data.data.response,
+          timestamp: new Date().toISOString(),
+          actions: data.data.actions || []
+        }
+
+        setMessages(prev => [...prev, assistantMessage])
+        setSuggestions(data.data.suggestions || [])
+      } else {
+        throw new Error('Failed to get response')
+      }
+    } catch (error) {
+      console.error('Chat error:', error)
+      const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: `I understand you want to: "${input}". I'm working on implementing this feature. For now, I can help you navigate to the relevant section or provide guidance on your request.`,
-        timestamp: new Date()
+        content: "I apologize, but I encountered an error processing your request. Please try again.",
+        timestamp: new Date().toISOString()
       }
-      setMessages(prev => [...prev, assistantMessage])
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
+  }
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setInput(suggestion)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handleSend()
+      handleSendMessage()
+    }
+  }
+
+  const getActionIcon = (actionType: string) => {
+    switch (actionType) {
+      case 'create_project':
+      case 'create_task':
+      case 'create_client':
+        return <CheckCircle className="h-4 w-4 text-green-500" />
+      case 'error':
+        return <AlertCircle className="h-4 w-4 text-red-500" />
+      default:
+        return <Info className="h-4 w-4 text-blue-500" />
     }
   }
 
   return (
-    <div className="flex h-full w-full flex-col bg-white shadow-2xl shadow-gray-100 dark:!bg-navy-800 dark:shadow-none">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-navy-700">
+    <Card className={`flex flex-col h-[600px] ${className}`}>
+      <CardHeader className="flex flex-row items-center space-y-0 pb-2">
         <div className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-600">
-            <Sparkles className="h-4 w-4 text-white" />
-          </div>
-          <div>
-            <h3 className="font-bold text-navy-700 dark:text-white">AI Assistant</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-300">Always here to help</p>
-          </div>
+          <Bot className="h-5 w-5 text-blue-500" />
+          <CardTitle className="text-lg">AI Assistant</CardTitle>
         </div>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div className="flex max-w-[80%] items-start space-x-2">
-              {message.type === 'assistant' && (
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-600 mt-1">
-                  <Bot className="h-3 w-3 text-white" />
-                </div>
-              )}
-              
-              <Card className={`p-3 ${
-                message.type === 'user' 
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' 
-                  : message.type === 'system'
-                  ? 'bg-gray-100 dark:bg-navy-700 border-dashed'
-                  : 'bg-gray-50 dark:bg-navy-900'
+        <Badge variant="secondary" className="ml-auto">
+          <Sparkles className="h-3 w-3 mr-1" />
+          Powered by GPT-4
+        </Badge>
+      </CardHeader>
+      
+      <CardContent className="flex-1 flex flex-col space-y-4 p-4">
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto space-y-4 scrollbar-thin">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`flex items-start space-x-2 max-w-[80%] ${
+                message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''
               }`}>
-                <p className={`text-sm ${
-                  message.type === 'user' 
-                    ? 'text-white' 
-                    : 'text-navy-700 dark:text-white'
-                }`}>
-                  {message.content}
-                </p>
-                <p className={`text-xs mt-1 ${
-                  message.type === 'user' 
-                    ? 'text-white/70' 
-                    : 'text-gray-500 dark:text-gray-400'
-                }`}>
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              </Card>
-
-              {message.type === 'user' && (
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-navy-700 dark:bg-white mt-1">
-                  <User className="h-3 w-3 text-white dark:text-navy-700" />
+                <div className="flex-shrink-0">
+                  {message.type === 'user' ? (
+                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                      <User className="h-4 w-4 text-white" />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                      <Bot className="h-4 w-4 text-gray-600" />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
-        ))}
-        
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="flex items-start space-x-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-600">
-                <Bot className="h-3 w-3 text-white" />
+                
+                <div className="flex-1">
+                  <div className={`rounded-lg px-4 py-2 ${
+                    message.type === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-900'
+                  }`}>
+                    <p className="text-sm">{message.content}</p>
+                  </div>
+                  
+                  {/* Actions */}
+                  {message.actions && message.actions.length > 0 && (
+                    <div className="mt-2 space-y-2">
+                      {message.actions.map((action, index) => (
+                        <div key={index} className="flex items-center space-x-2 text-sm text-gray-600">
+                          {getActionIcon(action.type)}
+                          <span>{action.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-gray-500 mt-1">
+                    {new Date(message.timestamp).toLocaleTimeString()}
+                  </p>
+                </div>
               </div>
-              <Card className="p-3 bg-gray-50 dark:bg-navy-900">
-                <div className="flex space-x-1">
-                  <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" />
-                  <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                  <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+            </div>
+          ))}
+          
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="flex items-start space-x-2 max-w-[80%]">
+                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                  <Bot className="h-4 w-4 text-gray-600" />
                 </div>
-              </Card>
+                <div className="bg-gray-100 rounded-lg px-4 py-2">
+                  <div className="flex items-center space-x-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-gray-600">Thinking...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Suggestions */}
+        {suggestions.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs text-gray-500">Suggested actions:</p>
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((suggestion, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="text-xs"
+                >
+                  {suggestion}
+                </Button>
+              ))}
             </div>
           </div>
         )}
-        
-        <div ref={messagesEndRef} />
-      </div>
 
-      {/* Input */}
-      <div className="border-t border-gray-200 p-4 dark:border-navy-700">
+        {/* Input */}
         <div className="flex space-x-2">
           <div className="flex-1 relative">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything about your projects..."
-              className="w-full resize-none rounded-xl border border-gray-200 bg-white p-3 pr-12 text-sm text-navy-700 outline-none focus:border-blue-500 dark:border-navy-700 dark:bg-navy-900 dark:text-white dark:placeholder-gray-400"
+              placeholder="Ask me anything about your projects, tasks, or design workflow..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={2}
+              disabled={isLoading}
             />
           </div>
           <Button
-            onClick={handleSend}
+            onClick={handleSendMessage}
             disabled={!input.trim() || isLoading}
-            className="flex h-auto items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-3 text-white hover:from-blue-600 hover:to-blue-700 disabled:opacity-50"
+            size="sm"
+            className="self-end"
           >
-            <Send className="h-4 w-4" />
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

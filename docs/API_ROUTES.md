@@ -1,17 +1,24 @@
 # Sylo-Max API Routes Specification
 
+## Development Server
+- **Local Development**: `http://localhost:3971`
+- **Production**: Vercel deployment (auto-configured)
+
 ## Core Orchestrator API
 
-### Main Chat Interface
+### Main Chat Interface - Sylo Core
 
 **POST /api/sylo-core**
 ```typescript
 // Primary endpoint for conversational project management
+// Recently updated with TypeScript fixes and enhanced error handling
 Request: {
   message: string;                // Natural language input
-  userId: string;                 // Authenticated user ID
   context?: {                     // Optional context
-    projectId?: string;
+    sessionId?: string;           // Chat session identifier
+    firmId?: string;              // Auto-populated from user context
+    userId?: string;              // Auto-populated from authentication
+    currentProject?: string;
     activeView?: string;
     recentActions?: Action[];
   };
@@ -19,19 +26,45 @@ Request: {
 
 Response: {
   success: boolean;
-  response: string;               // Formatted response text
-  actions: Action[];              // Executed actions
-  suggestions: string[];          // Follow-up suggestions
-  data?: any;                     // Structured data (tasks, projects, etc.)
-  requiresConfirmation?: boolean; // For destructive operations
+  data?: {
+    response: string;             // AI-generated response
+    actions: ChatAction[];        // Executed actions with results
+    suggestions: string[];        // Follow-up suggestions
+    intent: Intent;               // Parsed user intent
+    confidence: number;           // AI confidence score (0-1)
+  };
+  error?: {                      // Enhanced error handling (June 2025 update)
+    code: string;
+    message: string;
+    details?: any;
+    timestamp: string;
+    requestId: string;
+  };
+}
+
+// Supported Intents (via OpenAI function calling)
+type Intent = 
+  | 'create_project'
+  | 'create_task' 
+  | 'create_client'
+  | 'get_project_status'
+  | 'schedule_meeting'
+  | 'search_entities'
+  | 'unknown'
+
+// Action Types
+interface ChatAction {
+  type: 'create_project' | 'create_task' | 'create_client' | 'get_project_status' | 'search_results' | 'info' | 'error';
+  description: string;
+  data?: any;
 }
 
 // Example Usage
 POST /api/sylo-core
 {
-  "message": "Show me the dashboard overview",
-  "userId": "user_123",
+  "message": "Create a new interior design project for ABC Corp with a budget of $50,000",
   "context": {
+    "sessionId": "session_1701234567890",
     "activeView": "dashboard"
   }
 }
@@ -39,24 +72,55 @@ POST /api/sylo-core
 Response:
 {
   "success": true,
-  "response": "Here's your dashboard overview with current stats and recent activity.",
-  "actions": [
-    {
-      "type": "fetch",
-      "entity": "dashboard_stats",
-      "data": {
-        "activeProjects": 12,
-        "tasksDue": 8,
-        "clientCount": 15,
-        "revenue": 125000
+  "data": {
+    "response": "I've created a new interior design project for ABC Corp with a $50,000 budget. The project has been assigned ID proj_abc_interior_2025 and is now in the Initial Brief stage.",
+    "actions": [
+      {
+        "type": "create_project", 
+        "description": "Created project \"ABC Corp Interior Design\" for ABC Corp",
+        "data": {
+          "project": {
+            "id": "proj_abc_interior_2025",
+            "name": "ABC Corp Interior Design",
+            "budget": 50000,
+            "type": "interior",
+            "status": "active",
+            "currentStage": "stage_0"
+          },
+          "client": {
+            "id": "client_abc_corp",
+            "name": "ABC Corp"
+          }
+        }
       }
-    }
-  ],
-  "suggestions": [
-    "Review overdue tasks",
-    "Check project timelines",
-    "Schedule client meetings"
-  ]
+    ],
+    "suggestions": [
+      "Add tasks to the new project",
+      "Schedule initial client meeting", 
+      "Set project timeline",
+      "Assign team members"
+    ],
+    "intent": "create_project",
+    "confidence": 0.95
+  }
+}
+```
+
+### Chat History Persistence
+
+The Sylo Core endpoint now includes chat history persistence:
+
+```typescript
+// Chat messages are automatically saved to database
+interface ChatHistory {
+  userId: string;
+  sessionId: string;
+  messageType: 'user' | 'assistant';
+  content: string;
+  intent?: string;
+  entities?: Entity[];           // JSON field with type safety fixes
+  context?: any;                 // JSON field with type safety fixes
+  timestamp: Date;
 }
 ```
 

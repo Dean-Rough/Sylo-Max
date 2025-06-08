@@ -5,62 +5,69 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { 
   LayoutDashboard, 
-  FolderOpen, 
+  Building2,
   Users, 
   CheckSquare, 
+  FolderOpen, 
+  ShoppingBag,
   Calendar, 
-  Package, 
   BarChart3,
   Settings,
-  MessageSquare,
-  Home,
-  ChevronRight
+  Bot
 } from "lucide-react"
 
 const navigation = [
   {
-    name: "Main Dashboard",
+    name: "Dashboard",
     href: "/dashboard",
-    icon: Home,
+    icon: LayoutDashboard,
   },
   {
     name: "Projects",
-    href: "/dashboard/projects",
-    icon: FolderOpen,
-  },
-  {
-    name: "Tasks",
-    href: "/dashboard/tasks", 
-    icon: CheckSquare,
+    href: "/projects",
+    icon: Building2,
   },
   {
     name: "Clients",
-    href: "/dashboard/clients",
+    href: "/clients",
     icon: Users,
   },
   {
-    name: "Calendar",
-    href: "/dashboard/calendar",
-    icon: Calendar,
+    name: "Tasks",
+    href: "/tasks", 
+    icon: CheckSquare,
+  },
+  {
+    name: "Files",
+    href: "/files",
+    icon: FolderOpen,
   },
   {
     name: "Products",
-    href: "/dashboard/products",
-    icon: Package,
+    href: "/products",
+    icon: ShoppingBag,
+  },
+  {
+    name: "Calendar",
+    href: "/calendar",
+    icon: Calendar,
   },
   {
     name: "Analytics",
-    href: "/dashboard/analytics",
+    href: "/analytics",
     icon: BarChart3,
   },
+]
+
+const bottomNavigation = [
   {
-    name: "Chat History",
-    href: "/dashboard/chat-history",
-    icon: MessageSquare,
+    name: "AI Assistant",
+    href: "/assistant",
+    icon: Bot,
   },
   {
     name: "Settings",
-    href: "/dashboard/settings",
+    href: "/settings",
     icon: Settings,
   },
 ]
@@ -69,58 +76,76 @@ export function SidebarNav() {
   const pathname = usePathname()
 
   return (
-    <div className="flex h-full w-full flex-col bg-white shadow-2xl shadow-gray-100 dark:!bg-navy-800 dark:shadow-none">
-      {/* Logo Section - Horizon UI Style */}
-      <div className="mt-[50px] flex items-center justify-center">
-        <div className="ml-1 mt-1 h-2.5 font-poppins text-[26px] font-bold uppercase text-navy-700 dark:text-white">
-          SYLO<span className="font-medium">-MAX</span>
+    <div className="flex flex-col h-full bg-white dark:bg-navy-800 border-r border-gray-200 dark:border-navy-700">
+      {/* Logo */}
+      <div className="flex items-center h-16 px-6 border-b border-gray-200 dark:border-navy-700">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">S</span>
+          </div>
+          <span className="text-xl font-bold text-gray-900 dark:text-white">
+            Sylo-Max
+          </span>
         </div>
       </div>
-      
-      {/* Divider */}
-      <div className="mt-[58px] mb-7 h-px bg-gray-300 dark:bg-white/30" />
 
-      {/* Navigation Links - Horizon UI Style */}
-      <ul className="mb-auto pt-1">
+      {/* Navigation */}
+      <nav className="flex-1 px-4 py-6 space-y-1">
         {navigation.map((item) => {
           const isActive = pathname === item.href
           return (
-            <li key={item.name} className="relative mb-3">
-              <Link
-                href={item.href}
-                className={cn(
-                  "relative flex hover:cursor-pointer items-center rounded-xl py-2 pl-4 pr-4",
-                  isActive
-                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/50"
-                    : "text-gray-600 hover:bg-gray-50 dark:text-white dark:hover:bg-white/10"
-                )}
-              >
-                <span className="font-bold text-inherit transition-all">
-                  <item.icon className="h-4 w-4" />
-                </span>
-                <p className="leading-1 ml-4 flex font-medium text-inherit">
-                  {item.name}
-                </p>
-                {isActive && (
-                  <div className="absolute right-4 top-px h-9 w-1 rounded-lg bg-white" />
-                )}
-              </Link>
-            </li>
+            <Link
+              key={item.name}
+              href={item.href}
+              className={cn(
+                "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                isActive
+                  ? "bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-navy-700 dark:hover:text-white"
+              )}
+            >
+              <item.icon className="mr-3 h-5 w-5" />
+              {item.name}
+            </Link>
           )
         })}
-      </ul>
+      </nav>
 
-      {/* Profile Section - Horizon UI Style */}
-      <div className="flex justify-center">
-        <div className="flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-600 p-4">
-          <div className="flex h-full w-full items-center rounded-full text-xl">
-            <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">DN</span>
-            </div>
-            <div className="ml-3 text-white">
-              <p className="text-sm font-bold">Dean Newton</p>
-              <p className="text-xs opacity-80">Administrator</p>
-            </div>
+      {/* Bottom Navigation */}
+      <div className="px-4 pb-6 space-y-1 border-t border-gray-200 dark:border-navy-700 pt-6">
+        {bottomNavigation.map((item) => {
+          const isActive = pathname === item.href
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={cn(
+                "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                isActive
+                  ? "bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-navy-700 dark:hover:text-white"
+              )}
+            >
+              <item.icon className="mr-3 h-5 w-5" />
+              {item.name}
+            </Link>
+          )
+        })}
+      </div>
+
+      {/* User Profile */}
+      <div className="px-4 pb-4">
+        <div className="flex items-center p-3 rounded-md bg-gray-50 dark:bg-navy-700">
+          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-sm font-medium">DN</span>
+          </div>
+          <div className="ml-3 flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+              Dean Newton
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              Studio Director
+            </p>
           </div>
         </div>
       </div>

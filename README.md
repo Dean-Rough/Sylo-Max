@@ -117,19 +117,28 @@ navy: {
 # Install dependencies
 npm install
 
-# Start development server
+# Start development server (on port 3971)
 npm run dev
 
-# Open http://localhost:3000
+# Open http://localhost:3971
 ```
 
 ### Key Commands
 ```bash
-npm run dev          # Development server
+npm run dev          # Development server on port 3971 (kills existing processes first)
+npm run dev:default  # Development server on default port 3000
+npm run kill-port    # Kill any process running on port 3971
 npm run build        # Production build
 npm run type-check   # TypeScript validation
 npm run lint         # ESLint checking
 ```
+
+### Port Management
+The development server runs on **port 3971** by default. The `npm run dev` command automatically:
+1. Kills any existing process on port 3971
+2. Starts the Next.js development server on port 3971
+
+If you need to use the default port (3000), use `npm run dev:default` instead.
 
 ### Component Development
 ```bash
